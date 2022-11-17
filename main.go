@@ -20,8 +20,14 @@ type Pkt struct {
 }
 
 func makeLoginPktData() *bytes.Buffer {
-	account := "m-126108hgnn"
-	password := "a58870025879"
+	account := "m-127054pkgk"
+	password := "74516b5c98fe"
+
+	// account := "m-127824qspu"
+	// password := "2371588288ba"
+
+	// account := "m-127750aqya"
+	// password := "ede2fc7d1c69"
 
 	pkt := new(bytes.Buffer)
 	binary.Write(pkt, binary.LittleEndian, uint16(1000))
@@ -43,8 +49,8 @@ func makeLoginPktData() *bytes.Buffer {
 }
 
 func makeClientPktData() *bytes.Buffer {
-	cmdId := 1612
-	var param1 uint32 = 1
+	cmdId := 1635
+	var param1 uint32 = 3
 
 	// pkt
 	pkt := new(bytes.Buffer)
@@ -58,7 +64,7 @@ func makeClientPktData() *bytes.Buffer {
 	return data
 }
 
-func main() {
+func apiClient() {
 	fmt.Println("Connecting to " + connType + " server " + connHost + ":" + connPort)
 	conn, err := net.Dial(connType, connHost+":"+connPort)
 	if err != nil {
@@ -82,12 +88,12 @@ func main() {
 		return
 	}
 	recvStr := string(loginRecvData[:n])
-	fmt.Printf("Response data: %s \n", recvStr)
+	fmt.Printf("Response data:\n %s \n", recvStr)
 
-	fmt.Println(" ------------------------ ")
-
-	// custom api
+	fmt.Println(" next ------------------------ next ")
 	time.Sleep(1 * time.Second)
+
+	// Custom api
 
 	client_data := makeClientPktData()
 	_, err = conn.Write(client_data.Bytes())
@@ -102,13 +108,35 @@ func main() {
 	// }
 
 	// response
-	recvData := make([]byte, 5000)
-	_, err = conn.Read(recvData) //读取数据
-	if err != nil {
-		fmt.Println(err)
-		return
+	// recvData := make([]byte, 5000)
+	// _, err = conn.Read(recvData) //读取数据
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return
+	// }
+	// recvStr = string(recvData[:4])
+	// fmt.Printf("Response data: %s", recvStr)
+
+}
+
+func main() {
+	// for i := 1; i <= 20; i++ {
+	// 	fmt.Println("round:", i)
+	// 	apiClient()
+	// 	time.Sleep(1 * time.Second)
+	// }
+
+	round := 0
+	for {
+		round++
+		fmt.Println("round:", round)
+		apiClient()
+		// time.Sleep(1 * time.Second)
+
+		if round >= 1 {
+			fmt.Println("finished")
+			break
+		}
 	}
-	recvStr = string(recvData[:4])
-	fmt.Printf("Response data: %s", recvStr)
 
 }
