@@ -1,142 +1,111 @@
 package main
 
 import (
-	"bytes"
-	"encoding/binary"
+	"bufio"
+	"client_app/buffer"
 	"fmt"
+	"log"
 	"net"
 	"os"
+	"strings"
 	"time"
 )
 
-const (
-	connHost = "192.168.1.207"
-	connPort = "7235"
-	connType = "tcp"
-)
-
-type Pkt struct {
-	CmdId uint16
-}
-
-func makeLoginPktData() *bytes.Buffer {
-	account := "m-127054pkgk"
-	password := "74516b5c98fe"
-
-	// account := "m-127824qspu"
-	// password := "2371588288ba"
-
-	// account := "m-127750aqya"
-	// password := "ede2fc7d1c69"
-
-	pkt := new(bytes.Buffer)
-	binary.Write(pkt, binary.LittleEndian, uint16(1000))
-	binary.Write(pkt, binary.LittleEndian, uint16(1700))
-	binary.Write(pkt, binary.LittleEndian, uint8(len(account)))
-	binary.Write(pkt, binary.LittleEndian, []byte(account))
-	binary.Write(pkt, binary.LittleEndian, uint8(len(password)))
-	binary.Write(pkt, binary.LittleEndian, []byte(password))
-	binary.Write(pkt, binary.LittleEndian, uint16(19))
-	binary.Write(pkt, binary.LittleEndian, int32(1))
-
-	data := new(bytes.Buffer)
-	binary.Write(data, binary.LittleEndian, uint16(pkt.Len()))
-	binary.Write(data, binary.LittleEndian, pkt.Bytes())
-
-	return data
-	// fmt.Print(data.Bytes())
-	// return
-}
-
-func makeClientPktData() *bytes.Buffer {
-	cmdId := 1635
-	var param1 uint32 = 3
-
-	// pkt
-	pkt := new(bytes.Buffer)
-	binary.Write(pkt, binary.LittleEndian, uint16(cmdId))
-	binary.Write(pkt, binary.LittleEndian, uint32(param1))
-	// data
-	data := new(bytes.Buffer)
-	binary.Write(data, binary.LittleEndian, uint16(pkt.Len()))
-	binary.Write(data, binary.LittleEndian, pkt.Bytes())
-
-	return data
-}
-
-func apiClient() {
-	fmt.Println("Connecting to " + connType + " server " + connHost + ":" + connPort)
-	conn, err := net.Dial(connType, connHost+":"+connPort)
-	if err != nil {
-		fmt.Println("Error connecting:", err.Error())
-		os.Exit(1)
+func login(conn net.Conn) {
+	recv, send := make(chan string), make(chan string)
+	go func(s chan string) {
+		loginData := buffer.GenLoginData()
+		_, err := conn.Write(loginData.Bytes())
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println("用户登录成功......")
+	}(send)
+	go func(r chan string) {
+		buf := make([]byte, 1024)
+		cnt, err := conn.Read(buf)
+		if err != nil {
+			panic(err)
+		}
+		r <- fmt.Sprintf("recv: %v", string(buf[:cnt]))
+	}(recv)
+	select {
+	case accept := <-recv:
+		fmt.Println("accept")
+		log.Println(accept)
+	case to := <-send:
+		fmt.Println("send to ")
+		log.Println(to)
 	}
-	defer conn.Close() //关闭
 
-	login_data := makeLoginPktData()
-	_, err = conn.Write(login_data.Bytes())
+}
+
+func recv(c chan int) {
+	receiveData := <-c
+	fmt.Printf("receive:%d\n", receiveData)
+}
+
+func send(c chan int, n int) {
+	c <- n
+}
+
+func spinner(delay time.Duration) {
+	for {
+		for _, r := range `-|/` {
+			fmt.Printf("\r%c", r)
+			time.Sleep(delay)
+		}
+	}
+}
+
+func sendRequest(conn net.Conn, cmdID uint16) {
+	data := buffer.GenCMDIDData(cmdID)
+	conn.Write(data.Bytes())
+
+	//读取服务器返回的信息
+	buf := make([]byte, 1024)
+	n, err := conn.Read(buf)
+	fmt.Println("等待服务器返回信息 len=", n)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-
-	// login response
-	loginRecvData := make([]byte, 5000)
-	n, err := conn.Read(loginRecvData) //读取数据
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	recvStr := string(loginRecvData[:n])
-	fmt.Printf("Response data:\n %s \n", recvStr)
-
-	fmt.Println(" next ------------------------ next ")
-	time.Sleep(1 * time.Second)
-
-	// Custom api
-
-	client_data := makeClientPktData()
-	_, err = conn.Write(client_data.Bytes())
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	// fmt.Printf("Send data success: %b", client_data.Bytes())
-	// for {
-	// 	time.Sleep(1 * time.Second)
-	// }
-
-	// response
-	// recvData := make([]byte, 5000)
-	// _, err = conn.Read(recvData) //读取数据
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return
-	// }
-	// recvStr = string(recvData[:4])
-	// fmt.Printf("Response data: %s", recvStr)
-
+	fmt.Println("服务器返回信息：", string(buf[:n]))
 }
 
 func main() {
-	// for i := 1; i <= 20; i++ {
-	// 	fmt.Println("round:", i)
-	// 	apiClient()
-	// 	time.Sleep(1 * time.Second)
-	// }
+	addr, _ := net.ResolveTCPAddr("tcp", "192.168.1.207:7235")
+	conn, err := net.DialTCP("tcp", nil, addr)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer conn.Close()
+	fmt.Println("连接服务器成功......")
 
-	round := 0
+	// 发送登录数据包
+	login(conn)
+	fmt.Println("用户登录成功......")
+
+	fmt.Println("Please input the cmdID: ")
+	reader := bufio.NewReader(os.Stdin)
 	for {
-		round++
-		fmt.Println("round:", round)
-		apiClient()
-		// time.Sleep(1 * time.Second)
-
-		if round >= 1 {
-			fmt.Println("finished")
+		line, err := reader.ReadString('\n')
+		if err != nil {
+			fmt.Println("Error input:", err)
+			os.Exit(1)
+		}
+		line = strings.Trim(line, " \r\n")
+		if len(line) == 0 {
+			fmt.Println("发送消息id不能为空")
+			continue
+		}
+		cmdID := buffer.StrConvToUint16(line)
+		if cmdID == 0 {
 			break
 		}
-	}
 
+		sendRequest(conn, cmdID)
+		fmt.Println("Please input the cmdID: ")
+	}
 }
