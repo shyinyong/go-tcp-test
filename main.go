@@ -37,7 +37,6 @@ func login(conn net.Conn) {
 		fmt.Println("send to ")
 		log.Println(to)
 	}
-
 }
 
 func recv(c chan int) {
