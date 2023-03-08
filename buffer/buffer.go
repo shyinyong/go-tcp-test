@@ -7,8 +7,10 @@ import (
 )
 
 func GenLoginData() *bytes.Buffer {
-	account := "m-128516svas"
-	password := "3af3cdf5a960"
+	//account := "m-128516svas"
+	//password := "3af3cdf5a960"
+	account := "m-128693affk"
+	password := "d7693f7c0325"
 
 	pkt := new(bytes.Buffer)
 	binary.Write(pkt, binary.LittleEndian, uint16(1000))
@@ -27,7 +29,7 @@ func GenLoginData() *bytes.Buffer {
 	return data
 }
 
-func GenCMDIDData(cmdID uint16) *bytes.Buffer {
+func GenCMDIDData(cmdID int) *bytes.Buffer {
 	pkt := new(bytes.Buffer)
 	binary.Write(pkt, binary.LittleEndian, cmdID)
 
