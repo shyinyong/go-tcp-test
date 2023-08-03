@@ -5,75 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9c61236d-defa-4aa7-a7b6-b3ed9a5e63d6" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/go-tcp-test.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/server_res.exe" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/util/PRChinaID.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/util/PRChinaID_test.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/util/Sign.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/util/Sign_test.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/util/arrays.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/util/bind.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/util/ecb.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/util/encryption.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/util/encryption_test.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/util/glob.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/util/glob_test.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/util/log.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/util/log/log.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/util/log_test.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/util/mongoHelper.v2.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/util/rpc_client.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/util/sanitize.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/util/sanitize_test.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/util/smtp/auth.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/util/smtp/example_test.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/util/smtp/smtp.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/util/smtp/smtp_test.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/util/sqlitehelper/batchrunner.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/util/task/manager.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/util/task/metrics.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/util/task/registry.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/util/task/state.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/util/task/task.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/util/transport.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/util/utils.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client_req.go" beforeDir="false" afterPath="$PROJECT_DIR$/client_req.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/server_res.exe" beforeDir="false" afterPath="$PROJECT_DIR$/bin/server_res.exe" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server_res.go" beforeDir="false" afterPath="$PROJECT_DIR$/server_res.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/go.mod" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/go.sum" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/utils/PRChinaID.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/utils/PRChinaID_test.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/utils/Sign.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/utils/Sign_test.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/utils/arrays.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/utils/bind.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/utils/ecb.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/utils/encryption.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/utils/encryption_test.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/utils/glob.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/utils/glob_test.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/utils/log.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/utils/log/log.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/utils/log_test.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/utils/mongoHelper.v2.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/utils/rpc_client.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/utils/sanitize.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/utils/sanitize_test.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/utils/smtp/auth.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/utils/smtp/example_test.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/utils/smtp/smtp.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/utils/smtp/smtp_test.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/utils/sqlitehelper/batchrunner.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/utils/task/manager.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/utils/task/metrics.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/utils/task/registry.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/utils/task/state.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/utils/task/task.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/utils/transport.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/utils/utils.go" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

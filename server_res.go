@@ -12,7 +12,6 @@ func main() {
 		return
 	}
 	defer ln.Close()
-
 	fmt.Println("Server started, waiting for connections...")
 
 	// Accept and handle incoming connections
@@ -22,7 +21,7 @@ func main() {
 			fmt.Print(err)
 			continue
 		}
-
+		fmt.Printf("Accepted connection to %v from %v\n", conn.LocalAddr(), conn.RemoteAddr())
 		go handleConnection(conn)
 	}
 }
