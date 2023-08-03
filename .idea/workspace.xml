@@ -7,6 +7,9 @@
     <list default="true" id="9c61236d-defa-4aa7-a7b6-b3ed9a5e63d6" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bin/server_res.exe" beforeDir="false" afterPath="$PROJECT_DIR$/bin/server_res.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client_req.go" beforeDir="false" afterPath="$PROJECT_DIR$/client_req.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server_res.go" beforeDir="false" afterPath="$PROJECT_DIR$/server_res.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

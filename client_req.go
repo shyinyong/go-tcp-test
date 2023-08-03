@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"net"
 )
 
@@ -12,7 +13,12 @@ func main() {
 		fmt.Println("Error connecting", err)
 		return
 	}
-	defer conn.Close()
+	defer func(conn net.Conn) {
+		err := conn.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(conn)
 
 	message := "Hello from the client!"
 	_, err = conn.Write([]byte(message))
@@ -25,7 +31,7 @@ func main() {
 	var response bytes.Buffer
 	for {
 		n, err := conn.Read(buffer)
-		fmt.Printf("Received response len:%d, and buffer len:%d \n", n, len(buffer))
+		fmt.Printf("Received server bytes:%d, and buffer len:%d \n", n, len(buffer))
 		if err != nil {
 			fmt.Println("Error reading")
 			return
@@ -35,5 +41,5 @@ func main() {
 			break
 		}
 	}
-	fmt.Printf("Received response:%s\n", response.String())
+	fmt.Printf("Received server data:%s\n", response.String())
 }
