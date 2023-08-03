@@ -2,7 +2,7 @@ package db
 
 import (
 	"database/sql"
-	"go-tcp-test/db/enitty"
+	"github.com/shyinyong/go-tcp-test/db/enitty"
 )
 import _ "github.com/go-sql-driver/mysql"
 

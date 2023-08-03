@@ -1,4 +1,4 @@
-package utils
+package config
 
 import (
 	"github.com/spf13/viper"
@@ -9,7 +9,7 @@ type Config struct {
 	DBDriver     string `mapstructure:"DB_DRIVER"`
 	DBSource     string `mapstructure:"DB_SOURCE"`
 	RedisAddress string `mapstructure:"REDIS_ADDRESS"`
-	RedisPort    string `mapstructure:"REDIS_PORT"`
+	Redis        *RedisConfig
 }
 
 type RedisConfig struct {
