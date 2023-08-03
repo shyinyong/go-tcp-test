@@ -1,6 +1,8 @@
-/*Package sqlitehelper - helper functions for sqlite db
-  includes:
-  BatchRunner - to improve performance
+/*
+Package sqlitehelper - helper functions for sqlite db
+
+	includes:
+	BatchRunner - to improve performance
 */
 package sqlitehelper
 
@@ -15,13 +17,13 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-//SQLStmtInstance - instance of one sql stmt
+// SQLStmtInstance - instance of one sql stmt
 type SQLStmtInstance struct {
 	Stmt *sql.Stmt
 	Args []interface{}
 }
 
-//SQLErrorInstance - instance of one sql error
+// SQLErrorInstance - instance of one sql error
 type SQLErrorInstance struct {
 	Name    string
 	Args    []interface{}
@@ -29,7 +31,7 @@ type SQLErrorInstance struct {
 	Err     error
 }
 
-//BatchRunner - run sqlite query in batch
+//BatchRunner - run sqlite store in batch
 /*
    //Example
    func batchInsert(tagID string, openIDs []string) error {
@@ -79,7 +81,7 @@ type BatchRunner struct {
 	wg          *sync.WaitGroup
 }
 
-//NewBatchRunner - constructor
+// NewBatchRunner - constructor
 func NewBatchRunner(db *sql.DB, batchSize int32, dbMutex *sync.RWMutex) *BatchRunner {
 	const defaultErrorBuffer = 10
 	const defaultMaxErrors = -1
@@ -102,7 +104,7 @@ func NewBatchRunner(db *sql.DB, batchSize int32, dbMutex *sync.RWMutex) *BatchRu
 	}
 }
 
-//prepare - prepare named query into runner
+// prepare - prepare named store into runner
 func (r *BatchRunner) Prepare(name, query string, args ...interface{}) (err error) {
 	//prepare in DB
 	var stmt *sql.Stmt
@@ -123,14 +125,14 @@ func (r *BatchRunner) Prepare(name, query string, args ...interface{}) (err erro
 	return
 }
 
-//RegisterErrHandler - register error handler
+// RegisterErrHandler - register error handler
 func (r *BatchRunner) RegisterErrHandler(handler func(SQLErrorInstance)) {
 	r.Mutex.Lock()
 	defer r.Mutex.Unlock()
 	r.ErrHandlers = append(r.ErrHandlers, handler)
 }
 
-//Push - push query instance into runner
+// Push - push store instance into runner
 func (r *BatchRunner) Push(name string, args ...interface{}) {
 	r.CommandChan <- struct {
 		Name string
@@ -141,7 +143,7 @@ func (r *BatchRunner) Push(name string, args ...interface{}) {
 	}
 }
 
-//Query - run query on underline DB
+// Query - run store on underline DB
 func (r *BatchRunner) Query(name string, args ...interface{}) (*sql.Rows, error) {
 	r.Mutex.RLock()
 	stmt, ok := r.Stmts[name]
@@ -154,7 +156,7 @@ func (r *BatchRunner) Query(name string, args ...interface{}) (*sql.Rows, error)
 	return stmt.Query(args...)
 }
 
-//QueryRow - run QueryRow on underline DB
+// QueryRow - run QueryRow on underline DB
 func (r *BatchRunner) QueryRow(name string, args ...interface{}) (*sql.Row, error) {
 	r.Mutex.RLock()
 	stmt, ok := r.Stmts[name]
@@ -167,7 +169,7 @@ func (r *BatchRunner) QueryRow(name string, args ...interface{}) (*sql.Row, erro
 	return stmt.QueryRow(args...), nil
 }
 
-//reportError - record err and return whether to continue
+// reportError - record err and return whether to continue
 func (r *BatchRunner) reportError(name, errType string, err error, args ...interface{}) (Continue bool) {
 	errorCount := int(atomic.AddUint32(&r.ErrorCount, 1))
 	r.ErrChan <- SQLErrorInstance{
@@ -179,7 +181,7 @@ func (r *BatchRunner) reportError(name, errType string, err error, args ...inter
 	return r.MaxErrors == -1 || errorCount <= r.MaxErrors
 }
 
-//Commit - send $commit command to runner on ctrlChan
+// Commit - send $commit command to runner on ctrlChan
 func (r *BatchRunner) Commit() {
 	r.Mutex.RLock()
 	for _, ctrlBus := range r.Runners {
@@ -189,7 +191,7 @@ func (r *BatchRunner) Commit() {
 	r.Mutex.RUnlock()
 }
 
-//doCommit - do commit on any querys in the buffer
+// doCommit - do commit on any querys in the buffer
 func (r *BatchRunner) doCommit(buffer []SQLStmtInstance) error {
 	//Start a new transaction
 	// log.Println("$commit", len(buffer), cap(buffer))
@@ -219,7 +221,7 @@ func (r *BatchRunner) doCommit(buffer []SQLStmtInstance) error {
 	return nil
 }
 
-//Close - close backend writers
+// Close - close backend writers
 func (r *BatchRunner) Close() {
 	close(r.CommandChan)
 	r.wg.Wait()
@@ -234,7 +236,7 @@ func (r *BatchRunner) Close() {
 	log.Println("[INFO] - [SQLiteRunner] Closed")
 }
 
-//Start - total 'numberOfInstances' backend writers
+// Start - total 'numberOfInstances' backend writers
 func (r *BatchRunner) Start(numberOfInstances int) {
 	if numberOfInstances <= 0 {
 		numberOfInstances = 1
@@ -246,7 +248,7 @@ func (r *BatchRunner) Start(numberOfInstances int) {
 	go r.errHandler()
 }
 
-//errHandler - go runting to handle errors
+// errHandler - go runting to handle errors
 func (r *BatchRunner) errHandler() {
 	for e := range r.ErrChan {
 		r.Mutex.RLock()
@@ -260,7 +262,7 @@ func (r *BatchRunner) errHandler() {
 	}
 }
 
-//doStart - start one instance of backend writer
+// doStart - start one instance of backend writer
 func (r *BatchRunner) doStart() {
 	runnerID := atomic.LoadUint32(&r.RunnerCount)
 	atomic.AddUint32(&r.RunnerCount, 1)
@@ -290,7 +292,7 @@ func (r *BatchRunner) doStart() {
 				batchSize := int(r.BatchSize)
 				r.Mutex.RUnlock()
 				if !stmtOk {
-					log.Println("[ERR] - [SQLiteRunner]missing query:", cmd.Name)
+					log.Println("[ERR] - [SQLiteRunner]missing store:", cmd.Name)
 					continue
 				}
 				buffer = append(buffer, SQLStmtInstance{

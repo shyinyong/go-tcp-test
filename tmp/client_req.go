@@ -1,4 +1,4 @@
-package main
+package tmp
 
 import (
 	"bytes"
@@ -42,4 +42,10 @@ func main() {
 		}
 	}
 	fmt.Printf("Received server data:%s\n", response.String())
+}
+
+func checkErr(err error) {
+	if err != nil {
+		log.Fatal()
+	}
 }
