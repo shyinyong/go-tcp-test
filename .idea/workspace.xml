@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="ALL" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="9c61236d-defa-4aa7-a7b6-b3ed9a5e63d6" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/go-tcp-test.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/server_res.exe" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/util/PRChinaID.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/util/PRChinaID_test.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/util/Sign.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/util/Sign_test.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/util/arrays.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/util/bind.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/util/ecb.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/util/encryption.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/util/encryption_test.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/util/glob.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/util/glob_test.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/util/log.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/util/log/log.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/util/log_test.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/util/mongoHelper.v2.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/util/rpc_client.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/util/sanitize.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/util/sanitize_test.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/util/smtp/auth.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/util/smtp/example_test.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/util/smtp/smtp.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/util/smtp/smtp_test.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/util/sqlitehelper/batchrunner.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/util/task/manager.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/util/task/metrics.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/util/task/registry.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/util/task/state.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/util/task/task.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/util/transport.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/util/utils.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client_req.go" beforeDir="false" afterPath="$PROJECT_DIR$/client_req.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server_res.go" beforeDir="false" afterPath="$PROJECT_DIR$/server_res.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp/go.mod" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp/go.sum" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp/utils/PRChinaID.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp/utils/PRChinaID_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp/utils/Sign.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp/utils/Sign_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp/utils/arrays.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp/utils/bind.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp/utils/ecb.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp/utils/encryption.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp/utils/encryption_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp/utils/glob.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp/utils/glob_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp/utils/log.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp/utils/log/log.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp/utils/log_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp/utils/mongoHelper.v2.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp/utils/rpc_client.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp/utils/sanitize.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp/utils/sanitize_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp/utils/smtp/auth.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp/utils/smtp/example_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp/utils/smtp/smtp.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp/utils/smtp/smtp_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp/utils/sqlitehelper/batchrunner.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp/utils/task/manager.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp/utils/task/metrics.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp/utils/task/registry.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp/utils/task/state.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp/utils/task/task.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp/utils/transport.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp/utils/utils.go" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="GOROOT" url="file://C:/Program Files/Go" />
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: -1
+}</component>
+  <component name="ProjectId" id="2TSWNjGdVO3fh4toLbxLiNQugJp" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.go.modules.automatic.dependencies.download": "true",
+    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "master",
+    "go.import.settings.migrated": "true",
+    "go.sdk.automatically.set": "true",
+    "last_opened_file_path": "D:/projects/go-tcp-test",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "settings.editor.selected.configurable": "http.proxy"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\projects\go-tcp-test\bin" />
+    </key>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+  </component>
+  <component name="VgoProject">
+    <settings-migrated>true</settings-migrated>
+  </component>
+</project>

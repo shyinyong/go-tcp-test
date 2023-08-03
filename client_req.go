@@ -12,7 +12,6 @@ func main() {
 		fmt.Println("Error connecting", err)
 		return
 	}
-
 	defer conn.Close()
 
 	message := "Hello from the client!"
@@ -22,7 +21,6 @@ func main() {
 		return
 	}
 
-	// Received response from the server
 	buffer := make([]byte, 1024)
 	var response bytes.Buffer
 	for {
@@ -32,7 +30,6 @@ func main() {
 			fmt.Println("Error reading")
 			return
 		}
-
 		response.Write(buffer[:n])
 		if n < len(buffer) {
 			break
