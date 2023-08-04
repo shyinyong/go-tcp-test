@@ -3,31 +3,32 @@ package handler
 import (
 	"fmt"
 	"github.com/shyinyong/go-tcp-test/pb/request"
+	"google.golang.org/protobuf/proto"
 	"net"
-	"sync"
 )
 
-type OnlinePlayers struct {
-	sync.Mutex
-	players map[int32]PlayerInfo
-}
-
-type PlayerInfo struct {
-	Username string
-	ClientIP string
-}
-
 func HandleMsg(conn net.Conn, msg *request.Request) {
-	onlinePlayers := &OnlinePlayers{
-		players: make(map[int32]PlayerInfo),
-	}
-	// Add player to online players list
-	onlinePlayers.Lock()
-	onlinePlayers.players[1] = PlayerInfo{}
-	onlinePlayers.Unlock()
-	id := msg.Id
+	// Handle different message IDs
+	switch msg.MsgId {
+	case 1: // 用户信息请求
+		response, err = GetUserInfo(&msg)
+		if err != nil {
+			fmt.Println("Error handling user info request:", err)
+			return
+		}
+		// TODO: Handle other message IDs
 
-	fmt.Printf("Hello:[request id:%s]\n", string(id))
+	default:
+		fmt.Println("Unknown message ID:", request.MsgID)
+		return
+	}
+
+	// Serialize response message
+	responseData, err := proto.Marshal(response)
+	if err != nil {
+		fmt.Println("Error marshaling response:", err)
+		return
+	}
 
 	//var gameMsg gen.GameMsg
 	//err := proto.Unmarshal(msg, &gameMsg)

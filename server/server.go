@@ -18,15 +18,25 @@ func Start() {
 	}
 	defer listener.Close()
 	log.Info().Msg("Server started, waiting for connections...")
-	server := &Server{}
 
+	var wg sync.WaitGroup
+	server := &Server{}
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
 			log.Fatal().Err(err)
+			continue
 		}
 		fmt.Printf("Accepted connection to %v from %v\n", conn.LocalAddr(), conn.RemoteAddr())
-		//go handleConn(conn)
-		go server.handleRequest(conn)
+
+		//go server.handleRequest(conn)
+		wg.Add(1)
+		go func(c net.Conn) {
+			defer wg.Done()
+			defer conn.Close()
+			server.handleConnection(conn)
+		}(conn)
 	}
+
+	wg.Wait()
 }

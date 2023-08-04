@@ -1,13 +1,18 @@
 syntax = "proto3";
 
 package pb;
-import "google/protobuf/timestamp.proto";
 option go_package = "/request";
-
+import "google/protobuf/timestamp.proto";
+import "user.proto";
 
 message Request {
-  int32 id = 1;  // Unique ID number for this person.
+  int32 msg_id = 1;  // Unique ID number for this person.
   string msg = 2;
+  oneof PlayerInfoReq {
+    PlayerInfoReq user_info_request = 3;
+    // 其他请求消息类型
+    // ...
+  }
 
   google.protobuf.Timestamp last_updated = 5;
 }
