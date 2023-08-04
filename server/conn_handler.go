@@ -13,6 +13,7 @@ import (
 
 func (s *Server) handleRequest(conn net.Conn) {
 	defer conn.Close()
+	defer s.handleDisconnection(conn)
 
 	reqData, err := readRequest(conn)
 	if err != nil {
@@ -48,6 +49,10 @@ func (s *Server) handleRequest(conn net.Conn) {
 		// 处理错误
 		return
 	}
+}
+
+func (s *Server) handleDisconnection(conn net.Conn) {
+
 }
 
 func handleConn(conn net.Conn) {

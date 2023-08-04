@@ -18,6 +18,7 @@ func Start() {
 	}
 	defer listener.Close()
 	log.Info().Msg("Server started, waiting for connections...")
+	server := &Server{}
 
 	for {
 		conn, err := listener.Accept()
@@ -26,6 +27,7 @@ func Start() {
 		}
 
 		fmt.Printf("Accepted connection to %v from %v\n", conn.LocalAddr(), conn.RemoteAddr())
-		go handleConn(conn)
+		//go handleConn(conn)
+		go server.handleRequest(conn)
 	}
 }
