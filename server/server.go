@@ -2,10 +2,14 @@ package server
 
 import (
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/rs/zerolog/log"
 	"net"
+	"sync"
 )
+
+type Server struct {
+	mutex sync.Mutex
+}
 
 func Start() {
 	listener, err := net.Listen("tcp", ":8080")

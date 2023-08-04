@@ -5,25 +5,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9c61236d-defa-4aa7-a7b6-b3ed9a5e63d6" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/server/conn_handler.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/server.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pb/rpc_create_user.pb.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pb/rpc_login_user.pb.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pb/rpc_update_user.pb.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pb/rpc_verify_email.pb.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pb/user.pb.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/proto/addressbook.proto" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/proto/game.proto" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/proto/github.com/shyinyong/go-tcp-test/addressbook.pb.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/proto/user.proto" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.env" beforeDir="false" afterPath="$PROJECT_DIR$/app.env" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/config.go" beforeDir="false" afterPath="$PROJECT_DIR$/config/config.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/mysql/mysql.go" beforeDir="false" afterPath="$PROJECT_DIR$/db/mysql/conn.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/redis/redis.go" beforeDir="false" afterPath="$PROJECT_DIR$/db/redis/conn.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/repository/redis.go" beforeDir="false" afterPath="$PROJECT_DIR$/db/repository/redis.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/handler/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/handler/msg_handler.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/server.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/buffer/buffer.go" beforeDir="false" afterPath="$PROJECT_DIR$/tcp_test/buffer/buffer.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/client/main.default.go" beforeDir="false" afterPath="$PROJECT_DIR$/tcp_test/client/main.default.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/client/main.default2.go" beforeDir="false" afterPath="$PROJECT_DIR$/tcp_test/client/main.default2.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/client_req.go" beforeDir="false" afterPath="$PROJECT_DIR$/tcp_test/client_req.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/tcp_test/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp/server_res.go" beforeDir="false" afterPath="$PROJECT_DIR$/tcp_test/server_res.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/conn_handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/conn_handler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/server.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -72,21 +67,23 @@
     "git-widget-placeholder": "master",
     "go.import.settings.migrated": "true",
     "go.sdk.automatically.set": "true",
-    "last_opened_file_path": "D:/projects/go-tcp-test/cmd",
+    "last_opened_file_path": "D:/projects/go-tcp-test/proto",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
     "settings.editor.selected.configurable": "http.proxy"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\projects\go-tcp-test\proto" />
+      <recent name="D:\projects\go-tcp-test" />
       <recent name="D:\projects\go-tcp-test\server" />
       <recent name="D:\projects\go-tcp-test\handler" />
-      <recent name="D:\projects\go-tcp-test" />
       <recent name="$PROJECT_DIR$" />
-      <recent name="$PROJECT_DIR$/db/repository" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\projects\go-tcp-test\proto" />
       <recent name="D:\projects\go-tcp-test\db\Enitty" />
       <recent name="D:\projects\go-tcp-test\tmp" />
       <recent name="D:\projects\go-tcp-test\bin" />
