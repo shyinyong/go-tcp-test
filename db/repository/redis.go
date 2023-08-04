@@ -3,9 +3,9 @@ package repository
 import "github.com/shyinyong/go-tcp-test/db/redis"
 
 type RedisRepository struct {
-	db *redis.RedisDB
+	db *redis.DB
 }
 
-func NewRedisRepository(db *redis.RedisDB) *RedisRepository {
+func NewRedisRepository(db *redis.DB) *RedisRepository {
 	return &RedisRepository{db: db}
 }

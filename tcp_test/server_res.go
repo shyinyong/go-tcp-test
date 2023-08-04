@@ -1,4 +1,4 @@
-package tmp
+package tcp_test
 
 import (
 	"bytes"

@@ -1,21 +1,22 @@
-package server
+package service
 
 import (
-	"go-tcp-test/config"
-	"go-tcp-test/db/mysql"
-	"go-tcp-test/server/socket"
+	"github.com/shyinyong/go-tcp-test/config"
+	"github.com/shyinyong/go-tcp-test/db/mysql"
+	"github.com/shyinyong/go-tcp-test/db/redis"
+	"github.com/shyinyong/go-tcp-test/service/socket"
 )
 
 type Server struct {
-	config   *config.Config
-	mysqlDB  *mysql.MySQLDB
-	redisDB  *redis.RedisDB
-	redisDAO *dao.RedisDAO
-	handler  *socket.Handler
+	config  *config.Config
+	mysqlDB *mysql.MySQLDB
+	redisDB *redis.DB
+	handler *socket.Handler
 }
 
 func NewServer() *Server {
 	// Initialize and return a new Server instance
+	return &Server{}
 }
 
 func (s *Server) Start() {

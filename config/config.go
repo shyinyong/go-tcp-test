@@ -9,7 +9,6 @@ type Config struct {
 	DBDriver     string `mapstructure:"DB_DRIVER"`
 	DBSource     string `mapstructure:"DB_SOURCE"`
 	RedisAddress string `mapstructure:"REDIS_ADDRESS"`
-	Redis        *RedisConfig
 }
 
 type RedisConfig struct {
