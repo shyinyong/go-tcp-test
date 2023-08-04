@@ -25,7 +25,6 @@ func Start() {
 		if err != nil {
 			log.Fatal().Err(err)
 		}
-
 		fmt.Printf("Accepted connection to %v from %v\n", conn.LocalAddr(), conn.RemoteAddr())
 		//go handleConn(conn)
 		go server.handleRequest(conn)

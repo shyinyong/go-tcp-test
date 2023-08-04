@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package pb;
+import "google/protobuf/timestamp.proto";
+option go_package = "/response";
+
+
+message Response {
+  int32 id = 1;  // Unique ID number for this person.
+  string msg = 2;
+
+  google.protobuf.Timestamp last_updated = 5;
+}
+
+// Our address book file is just one of these.
