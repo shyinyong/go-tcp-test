@@ -1,6 +1,7 @@
 syntax = "proto3";
 
-package gen;
+package pb;
+option go_package = "/game";
 
 message GameMsg {
   string command = 1;

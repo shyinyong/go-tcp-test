@@ -5,20 +5,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9c61236d-defa-4aa7-a7b6-b3ed9a5e63d6" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/pb/rpc_create_user.pb.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pb/rpc_login_user.pb.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pb/rpc_update_user.pb.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pb/rpc_verify_email.pb.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pb/user.pb.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/proto/addressbook.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/proto/game.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/proto/github.com/shyinyong/go-tcp-test/addressbook.pb.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/proto/user.proto" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pb/address/addressbook.pb.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pb/game/game.pb.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pb/rpc_create_user.pb.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pb/rpc_login_user.pb.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pb/rpc_update_user.pb.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pb/rpc_verify_email.pb.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pb/user.pb.go" beforeDir="false" afterPath="$PROJECT_DIR$/pb/user/user.pb.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/proto/addressbook.proto" beforeDir="false" afterPath="$PROJECT_DIR$/proto/addressbook.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/proto/game.proto" beforeDir="false" afterPath="$PROJECT_DIR$/proto/game.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/proto/user.proto" beforeDir="false" afterPath="$PROJECT_DIR$/proto/user.proto" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/conn_handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/conn_handler.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/server.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

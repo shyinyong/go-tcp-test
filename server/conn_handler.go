@@ -5,7 +5,8 @@ import (
 	"encoding/binary"
 	"fmt"
 	"github.com/shyinyong/go-tcp-test/handler"
-	"github.com/shyinyong/go-tcp-test/pb"
+	"github.com/shyinyong/go-tcp-test/pb/address"
+	"google.golang.org/protobuf/proto"
 	"io"
 	"net"
 )
@@ -20,7 +21,7 @@ func (s *Server) handleRequest(conn net.Conn) {
 	}
 
 	// 解析请求消息
-	reqMsg := &pb.User{}
+	reqMsg := &address.Person{}
 	err = proto.Unmarshal(reqData, reqMsg)
 	if err != nil {
 		// 处理错误
@@ -34,7 +35,7 @@ func (s *Server) handleRequest(conn net.Conn) {
 	// TODO: 处理业务逻辑
 
 	// 构造响应消息
-	respMsg := &pb.User{}
+	respMsg := &address.Person{}
 	respData, err := proto.Marshal(respMsg)
 	if err != nil {
 		// 处理错误
@@ -115,6 +116,10 @@ func writeResponse(conn net.Conn, data []byte) error {
 	// 发送消息头和消息体
 	_, err := conn.Write(append(header, data...))
 	return err
+
+	// step1 https://protobuf.dev/getting-started/gotutorial/
+	// step2 go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+	// step3 protoc -I=D:\projects\go-tcp-test --go_out=D:\projects\go-tcp-test\pb D:\projects\go-tcp-test\proto\*.proto
 
 	// 在读取请求消息的逻辑中，首先读取消息头中的长度字段，然后根据长度字段读取消息体。
 	// 在发送响应消息的逻辑中，先构造消息头，然后将消息头和消息体合并后一次性发送。
