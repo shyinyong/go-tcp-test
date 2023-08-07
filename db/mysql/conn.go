@@ -26,21 +26,13 @@ import (
 //	return m.db.Close()
 //}
 
-var DB *sqlx.DB
+var Db *sqlx.DB
 
-func Init(config *config.Config) {
-	var err error
-	DB, err = sqlx.Open(config.DBDriver, config.DBSource)
+func NewDB(config *config.Config) *sqlx.DB {
+	Db, err := sqlx.Open(config.DBDriver, config.DBSource)
 	if err != nil {
 		log.Fatal().Err(err)
 	}
-	defer DB.Close()
+	//defer Db.Close()
+	return Db
 }
-
-func GetDB() *sqlx.DB {
-	return DB
-}
-
-//func (m *MySQLDB) Close() error {
-//	return m.db.Close()
-//}

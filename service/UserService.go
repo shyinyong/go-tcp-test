@@ -2,7 +2,6 @@ package service
 
 import (
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/jmoiron/sqlx"
 	_ "github.com/jmoiron/sqlx"
 	_ "google.golang.org/protobuf/proto"
 	"time"
@@ -22,25 +21,9 @@ type User struct {
 	UpdatedAt  time.Time `json:"updated_at"`
 }
 
-type UserService interface {
-	Get(id string) (*User, error)
-	Create(user *User) error
+type UserService struct {
 }
 
-func handleUserInfoRequest(request *Request, db *sqlx.DB) (*Response, error) {
-	var playerInfo PlayerInfo
-	query := "SELECT uid, username, level FROM players WHERE uid = ?"
-	if err := db.Get(&playerInfo, query, request.UID); err != nil {
-		return nil, err
-	}
+func getUserInfo() {
 
-	resp := &Response{
-		Player: &PlayerInfo{
-			UID:      playerInfo.UID,
-			Username: playerInfo.Username,
-			Level:    playerInfo.Level,
-		},
-	}
-
-	return resp, nil
 }

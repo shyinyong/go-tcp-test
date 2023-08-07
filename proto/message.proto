@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package pb;
+import "google/protobuf/timestamp.proto";
+option go_package = "/message";
+
+message GatewayMessage {
+  oneof message {
+    LoginRequest loginRequest = 1;
+    LoginResponse loginResponse = 2;
+  }
+}
+
+// 注册请求
+message RegisterRequest {
+  string username = 1;
+  string password = 2;
+  string email = 3;
+}
+
+// 注册响应
+message RegisterResponse {
+  // 注册成功与否的标志
+  bool success = 1;
+  // 其他字段...
+}
+
+// 登录请求
+message LoginRequest {
+  string username = 1;
+  string password = 2;
+}
+
+// 登录响应
+message LoginResponse {
+  // 登录成功与否的标志
+  bool success = 1;
+  string message = 2;
+
+  // 其他字段...
+}
+
+// 请求用户信息请求
+message GetUserInfoRequest {
+  string username = 1;
+}
+
+// 请求用户信息响应
+message GetUserInfoResponse {
+  string username = 1;
+  string email = 2;
+  google.protobuf.Timestamp last_updated = 3;
+}

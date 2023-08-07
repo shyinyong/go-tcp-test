@@ -1,35 +1,22 @@
 package handler
 
 import (
-	"fmt"
-	"github.com/shyinyong/go-tcp-test/pb/request"
-	"google.golang.org/protobuf/proto"
 	"net"
 )
 
-func HandleMsg(conn net.Conn, msg *request.Request) {
-	// Handle different message IDs
-	switch msg.MsgId {
-	case 1: // 用户信息请求
-		response, err = GetUserInfo(&msg)
-		if err != nil {
-			fmt.Println("Error handling user info request:", err)
-			return
-		}
-		// TODO: Handle other message IDs
+// 处理客户端请求
+//func handleClientRequest(msg Message) {
+//	service, ok := serviceMap[msg.ID]
+//	if ok {
+//		service.HandleMessage(msg)
+//	} else {
+//		// 没有找到对应的服务实现，使用UnknownService来处理
+//		unknownService := UnknownService{}
+//		unknownService.HandleMessage(msg)
+//	}
+//}
 
-	default:
-		fmt.Println("Unknown message ID:", request.MsgID)
-		return
-	}
-
-	// Serialize response message
-	responseData, err := proto.Marshal(response)
-	if err != nil {
-		fmt.Println("Error marshaling response:", err)
-		return
-	}
-
+func HandleMsg(conn net.Conn) {
 	//var gameMsg gen.GameMsg
 	//err := proto.Unmarshal(msg, &gameMsg)
 	//if err != nil {
