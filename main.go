@@ -21,6 +21,7 @@ func main() {
 	store := mysql.NewDB(&cfg)
 	defer store.Close()
 
+	// find db
 	st, err := studentByID(store, 1)
 	if err != nil {
 		fmt.Println(err)
@@ -43,7 +44,7 @@ func main() {
 	//// Start login server
 	//go startLoginServer(":8082")
 	//// Block forever
-	//select {}
+	select {}
 }
 
 func studentByID(store *sqlx.DB, id uint32) (Student, error) {

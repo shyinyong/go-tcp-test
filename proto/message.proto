@@ -4,6 +4,41 @@ package pb;
 import "google/protobuf/timestamp.proto";
 option go_package = "/message";
 
+enum MessageType {
+  NO = 0;
+  LOGIN = 1;
+  GAME = 2;
+  CHARACTER = 3;
+}
+
+message GameActionRequest {
+  int32 action_id = 1;
+  // Add more fields for game action as needed
+}
+
+message CharacterActionRequest {
+  int32 action_id = 1;
+  // Add more fields for character action as needed
+}
+
+message ClientMessage {
+  MessageType type = 1;
+  oneof message {
+    LoginRequest login_request = 2;
+    GameActionRequest game_action_request = 3;
+    CharacterActionRequest character_action_request = 4;
+    LoginResponse login_response = 5;
+    RegisterResponse register_response = 6;
+    GetUserInfoResponse get_user_info_response = 7;
+  }
+}
+
+message ServerMessage {
+  oneof message {
+    LoginResponse login_response = 1;
+  }
+}
+
 message GatewayMessage {
   oneof message {
     LoginRequest loginRequest = 1;
