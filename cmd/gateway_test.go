@@ -17,7 +17,7 @@ func TestLogin(t *testing.T) {
 		Password: "123456",
 	}
 	clientMsg := &protobuf.ClientMessage{
-		Type: protobuf.MessageType_LOGIN,
+		Type: protobuf.ClientMessage_LOGIN_REQUEST,
 		Message: &protobuf.ClientMessage_LoginRequest{
 			LoginRequest: loginRequest,
 		},

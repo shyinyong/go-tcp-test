@@ -1,88 +1,142 @@
 syntax = "proto3";
 
 package pb;
-import "google/protobuf/timestamp.proto";
+//import "google/protobuf/timestamp.proto";
 option go_package = "/message";
 
-enum MessageType {
-  NO = 0;
-  LOGIN = 1;
-  GAME = 2;
-  CHARACTER = 3;
+enum ServerType {
+  LOGIN = 0;
+  GAME = 1;
+  CHARACTER = 2;
 }
 
-message GameActionRequest {
-  int32 action_id = 1;
-  // Add more fields for game action as needed
+// 心跳请求消息
+message HeartbeatRequest {
+  int64 timestamp = 1;
 }
 
-message CharacterActionRequest {
-  int32 action_id = 1;
-  // Add more fields for character action as needed
+// 心跳响应消息
+message HeartbeatResponse {
+  int64 latency = 1;
 }
 
-message ClientMessage {
-  MessageType type = 1;
-  oneof message {
-    LoginRequest login_request = 2;
-    GameActionRequest game_action_request = 3;
-    CharacterActionRequest character_action_request = 4;
-    LoginResponse login_response = 5;
-    RegisterResponse register_response = 6;
-    GetUserInfoResponse get_user_info_response = 7;
-  }
-}
-
-message ServerMessage {
-  oneof message {
-    LoginResponse login_response = 1;
-  }
-}
-
-message GatewayMessage {
-  oneof message {
-    LoginRequest loginRequest = 1;
-    LoginResponse loginResponse = 2;
-  }
-}
-
-// 注册请求
-message RegisterRequest {
-  string username = 1;
-  string password = 2;
-  string email = 3;
-}
-
-// 注册响应
-message RegisterResponse {
-  // 注册成功与否的标志
-  bool success = 1;
-  // 其他字段...
-}
-
-// 登录请求
+// 登录请求消息
 message LoginRequest {
   string username = 1;
   string password = 2;
 }
 
-// 登录响应
+// 重新登录请求消息
+message ReLoginRequest {
+  string session_id = 1;
+}
+
+// 退出请求消息
+message LogoutRequest {
+  string session_id = 1;
+}
+
+// 进入游戏请求消息
+message EnterGameRequest {
+  string session_id = 1;
+}
+
+// 战斗开始请求消息
+message BattleStartRequest {
+  string session_id = 1;
+}
+
+// 战斗失败请求消息
+message BattleFailRequest {
+  string session_id = 1;
+}
+
+// 发送文字消息请求消息
+message SendTextMessageRequest {
+  string session_id = 1;
+  string message = 2;
+}
+
+// 登录响应消息
 message LoginResponse {
-  // 登录成功与否的标志
   bool success = 1;
   string message = 2;
-
-  // 其他字段...
 }
 
-// 请求用户信息请求
-message GetUserInfoRequest {
-  string username = 1;
+// 重新登录响应消息
+message ReLoginResponse {
+  bool success = 1;
+  string message = 2;
 }
 
-// 请求用户信息响应
-message GetUserInfoResponse {
-  string username = 1;
-  string email = 2;
-  google.protobuf.Timestamp last_updated = 3;
+// 退出响应消息
+message LogoutResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// 进入游戏响应消息
+message EnterGameResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// 战斗开始响应消息
+message BattleStartResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// 战斗失败响应消息
+message BattleFailResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// 发送文字消息响应消息
+message SendTextMessageResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// 客户端消息
+message ClientMessage {
+  enum MessageType {
+    HEARTBEAT_REQUEST = 0;
+    HEARTBEAT_RESPONSE = 1;
+    LOGIN_REQUEST = 2;
+    LOGIN_RESPONSE = 3;
+    RELOGIN_REQUEST = 4;
+    RELOGIN_RESPONSE = 5;
+    LOGOUT_REQUEST = 6;
+    LOGOUT_RESPONSE = 7;
+    ENTER_GAME_REQUEST = 8;
+    ENTER_GAME_RESPONSE = 9;
+    BATTLE_START_REQUEST = 10;
+    BATTLE_START_RESPONSE = 11;
+    BATTLE_FAIL_REQUEST = 12;
+    BATTLE_FAIL_RESPONSE = 13;
+    SEND_TEXT_MESSAGE_REQUEST = 14;
+    SEND_TEXT_MESSAGE_RESPONSE = 15;
+  }
+
+  MessageType type = 1;
+  oneof message {
+    HeartbeatRequest heartbeat_request = 2;
+    HeartbeatResponse heartbeat_response = 3;
+    LoginRequest login_request = 4;
+    ReLoginRequest relogin_request = 5;
+    LogoutRequest logout_request = 6;
+    EnterGameRequest enter_game_request = 7;
+    BattleStartRequest battle_start_request = 8;
+    BattleFailRequest battle_fail_request = 9;
+    SendTextMessageRequest send_text_message_request = 10;
+    LoginResponse login_response = 11;
+    ReLoginResponse relogin_response = 12;
+    LogoutResponse logout_response = 13;
+    EnterGameResponse enter_game_response = 14;
+    BattleStartResponse battle_start_response = 15;
+    BattleFailResponse battle_fail_response = 16;
+    SendTextMessageResponse send_text_message_response = 17;
+  }
 }

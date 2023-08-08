@@ -1,20 +1,20 @@
 package main
 
 import (
-	"github.com/shyinyong/go-tcp-test/server/gateway"
-	"log"
+	"github.com/shyinyong/go-tcp-test/handler/gateway"
 )
 
 func main() {
-	// Gateway
-	gatewayServer := gateway.NewGatewayServer()
-	// Configure server addresses
-	gatewayServer.AddServers()
-	//gatewayServer.AddServerAddr(protobuf.MessageType_Login, "login-server:12346")    // Change the address
-	// Establish connections to game servers
-	err := gatewayServer.ConnectToServers()
-	if err != nil {
-		log.Fatal("Error connecting to servers:", err)
-	}
-	gatewayServer.Start("localhost:8080") // Change the port as needed
+	// Create a new instance of the gateway server
+	gs := gateway.NewServer()
+
+	// Initialize the serverAddresses map with the addresses of different servers
+	//serverAddresses := map[string]string{
+	//	"login": "localhost:8081",
+	//	//"game":  "game-server:12347",
+	//	//"chat":  "chat-server:12348",
+	//	// Add more server addresses if needed...
+	//}
+	//gs.SetServerAddresses(serverAddresses)
+	gs.Start("localhost:8080")
 }
