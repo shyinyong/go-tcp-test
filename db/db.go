@@ -2,9 +2,9 @@ package db
 
 import (
 	"database/sql"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/shyinyong/go-tcp-test/db/enitty"
 )
-import _ "github.com/go-sql-driver/mysql"
 
 // DB represents the database operations
 type DB struct {
@@ -42,5 +42,10 @@ func (db *DB) GetBooks() ([]enitty.Book, error) {
 		}
 		books = append(books, book)
 	}
+	err = rows.Err()
+	if err != nil {
+		panic(err)
+	}
+
 	return books, nil
 }

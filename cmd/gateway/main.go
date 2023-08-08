@@ -7,14 +7,14 @@ import (
 
 func main() {
 	// Gateway
-	gateway := gateway.NewGatewayServer()
+	gatewayServer := gateway.NewGatewayServer()
 	// Configure server addresses
-	gateway.AddServers()
-	//gateway.AddServerAddr(protobuf.MessageType_Login, "login-server:12346")    // Change the address
+	gatewayServer.AddServers()
+	//gatewayServer.AddServerAddr(protobuf.MessageType_Login, "login-server:12346")    // Change the address
 	// Establish connections to game servers
-	err := gateway.ConnectToServers()
+	err := gatewayServer.ConnectToServers()
 	if err != nil {
 		log.Fatal("Error connecting to servers:", err)
 	}
-	gateway.Start("localhost:8080") // Change the port as needed
+	gatewayServer.Start("localhost:8080") // Change the port as needed
 }

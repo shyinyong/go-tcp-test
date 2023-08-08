@@ -48,14 +48,14 @@ func main() {
 }
 
 func studentByID(store *sqlx.DB, id uint32) (Student, error) {
-	var st Student
+	st := Student{}
+
 	//if err := db.QueryRowx("SELECT * FROM students WHERE id = ?", id).StructScan(&st); err != nil {
 	//	if err == sql.ErrNoRows {
 	//		return st, fmt.Errorf("studentById %d: no such student", id)
 	//	}
 	//	return st, fmt.Errorf("studentById %d: %v", id, err)
 	//}
-
 	if err := store.Get(&st, "SELECT * FROM t_battle WHERE idx = ?", id); err != nil {
 		if err == sql.ErrNoRows {
 			return st, fmt.Errorf("studentById %d: no such student", id)
@@ -67,7 +67,7 @@ func studentByID(store *sqlx.DB, id uint32) (Student, error) {
 
 func fetchStudents(store *sqlx.DB) ([]Student, error) {
 	// A slice of Students to hold data from returned rows.
-	var students []Student
+	students := make([]Student, 0, 10)
 
 	err := store.Select(&students, "SELECT * FROM t_battle LIMIT 10")
 	if err != nil {
