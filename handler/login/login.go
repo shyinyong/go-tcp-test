@@ -26,10 +26,7 @@ func (ls *Server) Start(address string) {
 	if err != nil {
 		log.Fatal("Error starting server:", err)
 	}
-	defer listener.Close()
-
 	fmt.Println("Login server started. Listening on", address)
-
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
@@ -42,8 +39,6 @@ func (ls *Server) Start(address string) {
 }
 
 func (ls *Server) handleLoginConnection(conn net.Conn) {
-	//defer conn.Close()
-
 	data := make([]byte, 1024)
 	n, err := conn.Read(data)
 	if err != nil {
@@ -100,14 +95,7 @@ func (ls *Server) handleLoginRequest(conn net.Conn, request *protobuf.LoginReque
 	}
 
 	// Send the login response back to the client
-	_, err = conn.Write(responseData)
-	if err != nil {
-		log.Println("Error writing to connection:", err)
-		return
-	}
-
-	// Close the connection after sending the response
-	conn.Close()
+	ls.sendResponse(conn, responseData)
 }
 
 // 重新登录
@@ -168,7 +156,6 @@ func (ls *Server) handleLogoutRequest(conn net.Conn, request *protobuf.LogoutReq
 func (ls *Server) sendResponse(conn net.Conn, responseData []byte) {
 	fmt.Printf("Sending response to gateway server %v\n", responseData)
 	// 这里可以添加发送响应消息给网关服务器的具体逻辑
-
 	_, err := conn.Write(responseData)
 	if err != nil {
 		log.Println("Error writing to connection:", err)

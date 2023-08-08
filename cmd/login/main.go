@@ -5,7 +5,6 @@ import (
 )
 
 func main() {
-	// Login
 	loginServer := login.NewServer()
 	loginServer.Start("localhost:8081") // Change the port as needed
 }

@@ -11,7 +11,6 @@ func newTestServer(t *testing.T) (conn net.Conn) {
 	conn, err := net.Dial("tcp", "localhost:8080")
 	if err != nil {
 		fmt.Println("Error connecting", err)
-
 	}
 
 	return conn

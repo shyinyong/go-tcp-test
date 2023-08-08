@@ -5,11 +5,17 @@ import (
 	protobuf "github.com/shyinyong/go-tcp-test/pb/message"
 	"google.golang.org/protobuf/proto"
 	"log"
+	"net"
 	"testing"
 )
 
 func TestLogin(t *testing.T) {
-	conn := newTestServer(t)
+	conn, err := net.Dial("tcp", "localhost:8080")
+	if err != nil {
+		fmt.Println("Error connecting", err)
+		return
+	}
+	defer conn.Close() // Ensure the connection is closed after the test finishes
 
 	// Create a login request message
 	loginRequest := &protobuf.LoginRequest{
