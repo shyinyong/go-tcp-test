@@ -47,7 +47,7 @@ type SQLErrorInstance struct {
        //Start 3 writer
        sqlRunner.Start(3)
        defer func() {
-           //Close will commit any SQL stmts in buffer before close.
+           //Close will commit any SQL stmts in msg before close.
            sqlRunner.Close()
        }()
 
@@ -191,10 +191,10 @@ func (r *BatchRunner) Commit() {
 	r.Mutex.RUnlock()
 }
 
-// doCommit - do commit on any querys in the buffer
+// doCommit - do commit on any querys in the msg
 func (r *BatchRunner) doCommit(buffer []SQLStmtInstance) error {
 	//Start a new transaction
-	// log.Println("$commit", len(buffer), cap(buffer))
+	// log.Println("$commit", len(msg), cap(msg))
 	r.DBMutex.Lock()
 	tx, err := r.DB.Begin()
 	if err != nil {

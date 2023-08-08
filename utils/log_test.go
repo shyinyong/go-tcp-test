@@ -21,13 +21,13 @@ func TestLogTrace(t *testing.T) {
 
 	if !strings.HasPrefix(bufStr, "\n[TRACE] ") {
 		t.Errorf(
-			"Invalid buffer contents %s",
+			"Invalid msg contents %s",
 			buf.String(),
 		)
 	}
 	if !strings.HasSuffix(bufStr, "log_test.go:20: Tracing\n") {
 		t.Errorf(
-			"Invalid buffer contents %s",
+			"Invalid msg contents %s",
 			buf.String(),
 		)
 	}

@@ -1,9 +1,0 @@
-syntax = "proto3";
-
-package pb;
-option go_package = "/game";
-
-message GameMsg {
-  string command = 1;
-  // Add more fields as necessary
-}

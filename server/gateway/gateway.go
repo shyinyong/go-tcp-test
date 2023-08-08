@@ -56,7 +56,7 @@ func (gs *Server) Start(address string) {
 func (gs *Server) handleGatewayConnection(conn net.Conn) {
 	defer conn.Close()
 
-	buffer := make([]byte, 1024) // Adjust the buffer size as needed
+	buffer := make([]byte, 1024) // Adjust the msg size as needed
 	n, err := conn.Read(buffer)
 	if err != nil {
 		log.Println("Error reading from connection:", err)
@@ -168,7 +168,7 @@ func (gs *Server) forwardMessage(messageType protobuf.MessageType, clientConn ne
 	}
 
 	// Receive response from server
-	buffer := make([]byte, 1024) // Adjust the buffer size as needed
+	buffer := make([]byte, 1024) // Adjust the msg size as needed
 	n, err := serverConn.Read(buffer)
 	if err != nil {
 		log.Println("Error reading from server connection:", err)

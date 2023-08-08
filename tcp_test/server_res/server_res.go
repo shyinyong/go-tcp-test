@@ -1,4 +1,4 @@
-package tcp_test
+package main
 
 import (
 	"bytes"

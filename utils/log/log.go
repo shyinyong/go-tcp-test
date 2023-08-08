@@ -71,7 +71,7 @@ func New(out io.Writer, prefix string, flag int) *Logger {
 var Std = New(os.Stderr, "", Ldefault)
 
 // Cheap integer to fixed-width decimal ASCII.  Give a negative width to avoid zero-padding.
-// Knows the buffer has capacity.
+// Knows the msg has capacity.
 func itoa(buf *bytes.Buffer, i int, wid int) {
 	var u uint = uint(i)
 	if u == 0 && wid <= 1 {
