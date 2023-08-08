@@ -71,19 +71,21 @@ func (s *Server) acceptConnections(listener net.Listener) {
 			continue
 		}
 		fmt.Printf("conn:%s", conn.RemoteAddr())
-		go s.handleGatewayConnection(conn)
+		go s.handleGatewayConnection(conn, true)
 	}
 }
 
-func (s *Server) handleGatewayConnection(conn net.Conn) {
-	defer conn.Close()
+func (s *Server) handleGatewayConnection(conn net.Conn, shouldClose bool) {
+	// Only close the connection if the shouldClose flag is true
+	if shouldClose {
+		defer conn.Close()
+	}
 
 	for {
 		data, err := s.readMessage(conn)
 		if err != nil {
-			break
-			//log.Println("Error reading client message:", err)
-			//return
+			log.Println("Error reading client message:", err)
+			return
 		}
 
 		clientMsg := &protobuf.ClientMessage{}
