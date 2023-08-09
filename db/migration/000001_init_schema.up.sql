@@ -1,3 +1,16 @@
+create table t_user
+(
+    uid bigint auto_increment,
+    username    varchar(60)  not null,
+    password    varchar(60)  not null,
+    level    int  not null default '0',
+    primary key uid(uid),
+    unique key username(username)
+);
+
+
+
+
 CREATE TABLE "accounts" (
   "id" bigserial PRIMARY KEY,
   "owner" varchar NOT NULL,
