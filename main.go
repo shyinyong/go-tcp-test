@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/jmoiron/sqlx"
+	"github.com/shyinyong/go-tcp-test/api"
 	"github.com/shyinyong/go-tcp-test/config"
 	"github.com/shyinyong/go-tcp-test/db/mysql"
 	"log"
@@ -45,6 +46,18 @@ func main() {
 	//go startLoginServer(":8082")
 	//// Block forever
 	select {}
+}
+
+func runGinServer(config config.Config, store *sqlx.DB) {
+	server, err := api.NewServer(config, store)
+	if err != nil {
+		log.Fatal("cannot create server")
+	}
+
+	err = server.Start("localhost:8080")
+	if err != nil {
+		log.Fatal("cannot start server")
+	}
 }
 
 func studentByID(store *sqlx.DB, id uint32) (Student, error) {
