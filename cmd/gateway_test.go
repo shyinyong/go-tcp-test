@@ -44,4 +44,27 @@ func TestLogin(t *testing.T) {
 	}
 
 	fmt.Println("Login request sent to gateway server.")
+
+	//// Read and handle the response from the server
+	//responseData := make([]byte, 1024) // Assuming the response data can fit within this buffer size
+	//n, err := conn.Read(responseData)
+	//if err != nil {
+	//	log.Println("Error reading response from connection:", err)
+	//	return
+	//}
+	//
+	//// Unmarshal the response data into a LoginResponse message
+	//loginResponse := &protobuf.LoginResponse{}
+	//err = proto.Unmarshal(responseData[:n], loginResponse)
+	//if err != nil {
+	//	log.Println("Error unmarshaling login response:", err)
+	//	return
+	//}
+	//
+	//// Handle the login response
+	//if loginResponse.Success {
+	//	fmt.Println("Login successful:", loginResponse.Message)
+	//} else {
+	//	fmt.Println("Login failed:", loginResponse.Message)
+	//}
 }

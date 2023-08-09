@@ -11,8 +11,9 @@ type Config struct {
 	DBSource     string `mapstructure:"DB_SOURCE"`
 	RedisAddress string `mapstructure:"REDIS_ADDRESS"`
 
-	GatewayAddr string   `json:"gateway_addr"`
-	Servers     []string `json:"servers"`
+	LoginServerAddr string
+	GameServerAddr  string
+	ChatServerAddr  string
 }
 
 type RedisConfig struct {

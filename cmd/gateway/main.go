@@ -1,13 +1,24 @@
 package main
 
 import (
+	"github.com/shyinyong/go-tcp-test/config"
+	"github.com/shyinyong/go-tcp-test/db/mysql"
 	"github.com/shyinyong/go-tcp-test/handler/gateway"
 	"log"
 )
 
 func main() {
+	// Config env initialize
+	cfg, err := config.LoadConfig(".")
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	// Initialize database connections
+	store := mysql.NewDB(&cfg)
+
 	// Create a new instance of the gateway server
-	gs := gateway.NewServer()
+	gs := gateway.NewServer(cfg, store)
 
 	// Initialize the serverAddresses map with the addresses of different servers
 	serverAddresses := map[string]string{
@@ -20,7 +31,7 @@ func main() {
 
 	// Start the gateway server and listen on multiple addresses
 	addresses := []string{"localhost:8080"}
-	err := gs.Start(addresses)
+	err = gs.Start(addresses)
 	if err != nil {
 		log.Fatal("Error starting gateway server:", err)
 	}

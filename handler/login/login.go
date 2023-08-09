@@ -2,6 +2,8 @@ package login
 
 import (
 	"fmt"
+	"github.com/jmoiron/sqlx"
+	"github.com/shyinyong/go-tcp-test/config"
 	protobuf "github.com/shyinyong/go-tcp-test/pb/message"
 	"google.golang.org/protobuf/proto"
 	"log"
@@ -10,15 +12,20 @@ import (
 )
 
 type Server struct {
-	mutex sync.Mutex
+	mutex  sync.Mutex
+	config config.Config
+	store  *sqlx.DB
 
 	loginServerAddr string
 	gameServerAddr  string
 	chatServerAddr  string
 }
 
-func NewServer() *Server {
-	return &Server{}
+func NewServer(cfg config.Config, store *sqlx.DB) *Server {
+	return &Server{
+		config: cfg,
+		store:  store,
+	}
 }
 
 func (ls *Server) Start(address string) {
@@ -77,25 +84,46 @@ func (ls *Server) handleLoginRequest(conn net.Conn, request *protobuf.LoginReque
 	password := request.Password
 	fmt.Printf("username:%s, password:%s \n", username, password)
 
-	// Add your login logic here
-	// For example, query the database, validate credentials, etc.
-	// Return the login response based on the result of your logic
-
-	// In this example, we return a simple success response
-	loginResponse := &protobuf.LoginResponse{
-		Success: true,
-		Message: "Login successful",
-	}
-
-	// Marshal the login response
-	responseData, err := proto.Marshal(loginResponse)
+	// Query the database for the user's information
+	var storedPassword string
+	err := ls.store.QueryRow("SELECT password FROM t_user WHERE username = ?", username).Scan(&storedPassword)
 	if err != nil {
-		log.Println("Error marshaling login response:", err)
+		log.Println("Error querying database:", err)
 		return
 	}
 
-	// Send the login response back to the client
-	ls.sendResponse(conn, responseData)
+	// Compare the stored password with the provided password
+	if storedPassword == password {
+		// Successful login
+		loginResponse := &protobuf.LoginResponse{
+			Success: true,
+			Message: "Login successful",
+		}
+
+		// Marshal the login response
+		responseData, err := proto.Marshal(loginResponse)
+		if err != nil {
+			log.Println("Error marshaling login response:", err)
+			return
+		}
+
+		// Send the login response back to the client
+		ls.sendResponse(conn, responseData)
+	} else {
+		// Incorrect credentials
+		loginResponse := &protobuf.LoginResponse{
+			Success: false,
+			Message: "Incorrect username or password",
+		}
+
+		responseData, err := proto.Marshal(loginResponse)
+		if err != nil {
+			log.Println("Error marshaling login response:", err)
+			return
+		}
+
+		ls.sendResponse(conn, responseData)
+	}
 }
 
 // 重新登录
@@ -154,7 +182,6 @@ func (ls *Server) handleLogoutRequest(conn net.Conn, request *protobuf.LogoutReq
 
 // 登录服务器发送响应消息给网关服务器
 func (ls *Server) sendResponse(conn net.Conn, responseData []byte) {
-	fmt.Printf("Sending response to gateway server %v\n", responseData)
 	// 这里可以添加发送响应消息给网关服务器的具体逻辑
 	_, err := conn.Write(responseData)
 	if err != nil {
