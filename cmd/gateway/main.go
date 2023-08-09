@@ -24,7 +24,7 @@ func main() {
 	serverAddresses := map[string]string{
 		"login": "localhost:8081",
 		//"game":  "game-server:8082",
-		//"chat":  "chat-server:8083",
+		"chat": "chat-server:8083",
 		// Add more server addresses if needed...
 	}
 	gs.SetServerAddresses(serverAddresses)
