@@ -8,9 +8,20 @@ import (
 	"github.com/shyinyong/go-tcp-test/config"
 	"github.com/shyinyong/go-tcp-test/db/mysql"
 	"log"
+	"time"
 )
 
+func printHello() {
+	fmt.Println("hello world")
+}
+
 func main() {
+	fmt.Println("main start")
+	go printHello()
+	fmt.Println("main end")
+	time.Sleep(10)
+	return
+
 	// Config env initialize
 	cfg, err := config.LoadConfig(".")
 	if err != nil {

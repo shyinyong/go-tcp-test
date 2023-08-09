@@ -7,25 +7,6 @@ import (
 	"github.com/shyinyong/go-tcp-test/config"
 )
 
-//type MySQLDB struct {
-//	db *sql.DB
-//}
-
-//func NewMySQLDB(config *config.Config) (*MySQLDB, error) {
-//	db, err := sqlx.Open(config.DBDriver, config.DBSource)
-//	if err != nil {
-//		return nil, err
-//	}
-//	defer db.Close()
-//
-//	return &MySQLDB{db: db}, nil
-//}
-
-//
-//func (m *MySQLDB) Close() error {
-//	return m.db.Close()
-//}
-
 var Db *sqlx.DB
 
 func NewDB(config *config.Config) *sqlx.DB {
@@ -35,4 +16,8 @@ func NewDB(config *config.Config) *sqlx.DB {
 	}
 	//defer Db.Close()
 	return Db
+}
+
+func Close() error {
+	return Db.Close()
 }

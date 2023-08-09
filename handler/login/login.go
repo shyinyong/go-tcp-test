@@ -3,8 +3,11 @@ package login
 import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
+	"github.com/redis/go-redis/v9"
 	"github.com/shyinyong/go-tcp-test/config"
 	protobuf "github.com/shyinyong/go-tcp-test/pb/message"
+	"github.com/shyinyong/go-tcp-test/utils"
+	"golang.org/x/net/context"
 	"google.golang.org/protobuf/proto"
 	"log"
 	"net"
@@ -12,20 +15,37 @@ import (
 )
 
 type Server struct {
-	mutex  sync.Mutex
-	config config.Config
-	store  *sqlx.DB
+	mutex       sync.Mutex
+	config      config.Config
+	store       *sqlx.DB
+	redisClient *redis.Client
 
 	loginServerAddr string
 	gameServerAddr  string
 	chatServerAddr  string
 }
 
-func NewServer(cfg config.Config, store *sqlx.DB) *Server {
+func NewServer(cfg config.Config, store *sqlx.DB, redisClient *redis.Client) *Server {
 	return &Server{
-		config: cfg,
-		store:  store,
+		config:      cfg,
+		store:       store,
+		redisClient: redisClient,
 	}
+}
+
+type User struct {
+	ID       string
+	UserName string
+}
+
+type Session struct {
+	ID   string
+	User *User
+}
+
+func generateSessionID() string {
+	// generate random session ID
+	return "1"
 }
 
 func (ls *Server) Start(address string) {
@@ -93,37 +113,46 @@ func (ls *Server) handleLoginRequest(conn net.Conn, request *protobuf.LoginReque
 	}
 
 	// Compare the stored password with the provided password
-	if storedPassword == password {
-		// Successful login
-		loginResponse := &protobuf.LoginResponse{
-			Success: true,
-			Message: "Login successful",
-		}
-
-		// Marshal the login response
-		responseData, err := proto.Marshal(loginResponse)
-		if err != nil {
-			log.Println("Error marshaling login response:", err)
-			return
-		}
-
-		// Send the login response back to the client
-		ls.sendResponse(conn, responseData)
-	} else {
+	var resp *protobuf.LoginResponse
+	if storedPassword != password {
+		log.Println("Incorrect username or password")
 		// Incorrect credentials
-		loginResponse := &protobuf.LoginResponse{
+		resp = &protobuf.LoginResponse{
 			Success: false,
 			Message: "Incorrect username or password",
 		}
-
-		responseData, err := proto.Marshal(loginResponse)
+		responseData, err := proto.Marshal(resp)
 		if err != nil {
 			log.Println("Error marshaling login response:", err)
 			return
 		}
-
 		ls.sendResponse(conn, responseData)
+		return
 	}
+
+	// Generate a session ID and save it in Redis
+	// Implement this function to generate a unique session ID
+	sessionID, _ := utils.GenerateSessionID()
+	err = ls.saveSessionToRedis(sessionID, request.Username) // Save the session ID along with the username
+	if err != nil {
+		log.Println("Error saving session to Redis:", err)
+		return
+	}
+
+	resp = &protobuf.LoginResponse{
+		Success: true,
+		Message: "Login successful",
+	}
+
+	// Marshal the login response
+	responseData, err := proto.Marshal(resp)
+	if err != nil {
+		log.Println("Error marshaling login response:", err)
+		return
+	}
+
+	// Send the login response back to the client
+	ls.sendResponse(conn, responseData)
 }
 
 // 重新登录
@@ -188,4 +217,30 @@ func (ls *Server) sendResponse(conn net.Conn, responseData []byte) {
 		log.Println("Error writing to connection:", err)
 		return
 	}
+}
+
+// Save the session ID and username in Redis
+func (ls *Server) saveSessionToRedis(sessionID, username string) error {
+	ctx := context.Background()
+	err := ls.redisClient.Set(ctx, sessionID, username, 0).Err()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// Example function to validate session using Redis
+func (ls *Server) validateSession(sessionID string) (bool, error) {
+	ctx := context.Background()
+	username, err := ls.redisClient.Get(ctx, sessionID).Result()
+	if err != nil {
+		if err == redis.Nil {
+			return false, nil // Session not found
+		}
+		return false, err // Error occurred
+	}
+
+	// Session found
+	_ = username // You can use the username for further processing if needed
+	return true, nil
 }

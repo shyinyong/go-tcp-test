@@ -9,12 +9,16 @@ import (
 //	return r.client.Close()
 //}
 
-var RDB *redis.Client
+var client *redis.Client
 
-func Init() {
-	RDB = redis.NewClient(&redis.Options{
+func init() {
+	client = redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
+}
+
+func NewClient() *redis.Client {
+	return client
 }

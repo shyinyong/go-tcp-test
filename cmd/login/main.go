@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/shyinyong/go-tcp-test/config"
 	"github.com/shyinyong/go-tcp-test/db/mysql"
+	"github.com/shyinyong/go-tcp-test/db/redis"
 	"github.com/shyinyong/go-tcp-test/handler/login"
 	"log"
 )
@@ -16,7 +17,8 @@ func main() {
 	}
 	// Initialize database connections
 	store := mysql.NewDB(&cfg)
-
-	loginServer := login.NewServer(cfg, store)
+	// Create a Redis client
+	redisClient := redis.NewClient()
+	loginServer := login.NewServer(cfg, store, redisClient)
 	loginServer.Start("localhost:8081") // Change the port as needed
 }

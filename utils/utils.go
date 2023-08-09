@@ -1,10 +1,13 @@
-//Package utils - common functions used in CEH project
+// Package utils - common functions used in CEH project
 package utils
 
 import (
 	"bytes"
+	cRand "crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -24,7 +27,7 @@ const (
 
 var src = rand.NewSource(time.Now().UnixNano())
 
-//RandomString generate random string by length
+// RandomString generate random string by length
 func RandomString(n int) string {
 	b := make([]byte, n)
 	// A src.Int63() generates 63 random bits, enough for letterIdxMax characters!
@@ -43,7 +46,7 @@ func RandomString(n int) string {
 	return string(b)
 }
 
-//RandomNumber  随机数
+// RandomNumber  随机数
 func RandomNumber(n int) string {
 	rand.Seed(time.Now().UnixNano())
 	str := ""
@@ -53,7 +56,7 @@ func RandomNumber(n int) string {
 	return str
 }
 
-//LoadOrCreateJSON - load JSON file or create new JSON from defaultData
+// LoadOrCreateJSON - load JSON file or create new JSON from defaultData
 func LoadOrCreateJSON(fileName string, defaultData interface{}) error {
 	var err error
 	if err = LoadJSON(fileName, &defaultData); err != nil {
@@ -67,7 +70,7 @@ func LoadOrCreateJSON(fileName string, defaultData interface{}) error {
 	return nil
 }
 
-//LoadOrCreateJSONNoEscape - load JSON file or create new JSON from defaultData
+// LoadOrCreateJSONNoEscape - load JSON file or create new JSON from defaultData
 func LoadOrCreateJSONNoEscape(fileName string, defaultData interface{}) error {
 	var err error
 	if err = LoadJSON(fileName, &defaultData); err != nil {
@@ -81,7 +84,7 @@ func LoadOrCreateJSONNoEscape(fileName string, defaultData interface{}) error {
 	return nil
 }
 
-//SaveJSON file
+// SaveJSON file
 func SaveJSON(data interface{}, fileName string) error {
 	var err error
 	var b []byte
@@ -99,7 +102,7 @@ func SaveJSON(data interface{}, fileName string) error {
 	return nil
 }
 
-//SaveJSONNoEscape - save to file without escape
+// SaveJSONNoEscape - save to file without escape
 func SaveJSONNoEscape(data interface{}, fileName string) error {
 	var err error
 	var f *os.File
@@ -113,7 +116,7 @@ func SaveJSONNoEscape(data interface{}, fileName string) error {
 	return nil
 }
 
-//LoadJSON file
+// LoadJSON file
 func LoadJSON(fileName string, v interface{}) error {
 	var err error
 	var b []byte
@@ -128,7 +131,7 @@ func LoadJSON(fileName string, v interface{}) error {
 	return json.Unmarshal(b, &v)
 }
 
-//Substr 截取子串,这个对中文无效
+// Substr 截取子串,这个对中文无效
 func Substr(str string, start int, length int) string {
 	rs := []rune(str)
 	rl := len(rs)
@@ -159,7 +162,7 @@ func Substr(str string, start int, length int) string {
 	return string(rs[start:end])
 }
 
-//OutputJSON - OutputJSON helper
+// OutputJSON - OutputJSON helper
 func OutputJSON(w http.ResponseWriter, errCode int, errMsg string, params ...interface{}) {
 	r := map[string]interface{}{"errcode": errCode, "errmsg": errMsg}
 
@@ -177,7 +180,7 @@ func OutputJSON(w http.ResponseWriter, errCode int, errMsg string, params ...int
 	w.Write(b)
 }
 
-//GetCardKeys - extract keys from cardnumber
+// GetCardKeys - extract keys from cardnumber
 func GetCardKeys(cardno string) (storekey, custkey, cardholderkey int) {
 	if len(cardno) != 22 {
 		return
@@ -192,7 +195,7 @@ func GetCardKeys(cardno string) (storekey, custkey, cardholderkey int) {
 	return
 }
 
-//MakeFolder - make folder if it is not exist.
+// MakeFolder - make folder if it is not exist.
 func MakeFolder(path string) {
 	path = NormalizePath(path)
 	if err := os.MkdirAll(path, os.ModeDir|0770); err != nil {
@@ -200,7 +203,7 @@ func MakeFolder(path string) {
 	}
 }
 
-//NormalizePath - Add / at the end of path
+// NormalizePath - Add / at the end of path
 func NormalizePath(path string) string {
 	if !strings.HasSuffix(path, "/") {
 		return path + "/"
@@ -208,19 +211,19 @@ func NormalizePath(path string) string {
 	return path
 }
 
-//NormalizePathPtr - Add / at the end of path
+// NormalizePathPtr - Add / at the end of path
 func NormalizePathPtr(path *string) {
 	if !strings.HasSuffix(*path, "/") {
 		*path = *path + "/"
 	}
 }
 
-//PrintJSON - print indent json string
+// PrintJSON - print indent json string
 func PrintJSON(data interface{}) {
 	fmt.Println(MarshalJSON(data))
 }
 
-//MarshalJSON - marshal indent json string
+// MarshalJSON - marshal indent json string
 func MarshalJSON(data interface{}, indent ...bool) string {
 	if len(indent) > 0 && indent[0] {
 		b, _ := json.MarshalIndent(data, "", "  ")
@@ -230,7 +233,7 @@ func MarshalJSON(data interface{}, indent ...bool) string {
 	return string(b)
 }
 
-//MarshalJSONV2 - Marshal JSON without html Escape
+// MarshalJSONV2 - Marshal JSON without html Escape
 func MarshalJSONV2(t interface{}, indent string, escape bool) []byte {
 	buffer := &bytes.Buffer{}
 	encoder := json.NewEncoder(buffer)
@@ -242,4 +245,17 @@ func MarshalJSONV2(t interface{}, indent string, escape bool) []byte {
 		log.Println("[ERR] - [MarshalJSONNoEscape]:", err)
 	}
 	return buffer.Bytes()
+}
+
+func GenerateSessionID() (string, error) {
+	// Generate a random 16-byte value
+	randomBytes := make([]byte, 16)
+	_, err := io.ReadFull(cRand.Reader, randomBytes)
+	if err != nil {
+		return "", err
+	}
+
+	// Convert the random bytes to a hexadecimal string
+	sessionID := hex.EncodeToString(randomBytes)
+	return sessionID, nil
 }
