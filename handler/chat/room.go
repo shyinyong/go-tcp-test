@@ -13,6 +13,7 @@ type ChatRoom struct {
 	Name        string
 	Users       map[*User]bool
 	Teams       map[*Team]bool
+	Guild       map[*Guild]bool
 	broadcast   chan string
 	systemMsg   string
 	systemMsgMu sync.Mutex

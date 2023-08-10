@@ -87,7 +87,7 @@ func (s *Server) authenticateUser(conn net.Conn) (string, bool) {
 	return username, true // Replace with actual values
 }
 
-// 发送系统消息
+// SendSystemMessage 发送系统消息
 func (s *Server) SendSystemMessage(message string) {
 	s.systemMessage <- message
 }

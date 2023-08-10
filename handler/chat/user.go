@@ -14,8 +14,9 @@ type User struct {
 	Username         string
 	Conn             net.Conn
 	Room             *ChatRoom
+	Team             *Team  // 队伍聊天
+	Guild            *Guild // 公会聊天
 	Writer           *bufio.Writer
-	Team             *Team
 	disconnectSignal chan struct{} // Signal to stop reading messages on disconnect
 }
 
