@@ -15,6 +15,7 @@ type User struct {
 	Conn             net.Conn
 	Room             *ChatRoom
 	Writer           *bufio.Writer
+	Team             *Team
 	disconnectSignal chan struct{} // Signal to stop reading messages on disconnect
 }
 
@@ -24,6 +25,16 @@ func NewUser(conn net.Conn) *User {
 		Writer:           bufio.NewWriter(conn),
 		disconnectSignal: make(chan struct{}),
 	}
+}
+
+func (u *User) disconnect() {
+	log.Printf("User %s disconnected", u.Username)
+	// Remove the user from the chat room
+	if u.Room != nil {
+		u.Room.RemoveUser(u)
+	}
+	close(u.disconnectSignal)
+	u.Conn.Close()
 }
 
 func (u *User) listenForMessages() {
@@ -87,12 +98,8 @@ func (u *User) sendMessage(message string) {
 	u.Writer.Flush()
 }
 
-func (u *User) disconnect() {
-	log.Printf("User %s disconnected", u.Username)
-	// Remove the user from the chat room
-	if u.Room != nil {
-		u.Room.RemoveUser(u)
+func (u *User) sendTeamMessage(message string) {
+	if u.Team != nil {
+		u.Team.Broadcast(u, message)
 	}
-	close(u.disconnectSignal)
-	u.Conn.Close()
 }

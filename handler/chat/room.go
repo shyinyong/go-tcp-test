@@ -12,6 +12,7 @@ type ChatRoom struct {
 	mu          sync.Mutex
 	Name        string
 	Users       map[*User]bool
+	Teams       map[*Team]bool
 	broadcast   chan string
 	systemMsg   string
 	systemMsgMu sync.Mutex
@@ -111,4 +112,17 @@ func (r *ChatRoom) GetUserList() []string {
 		userList = append(userList, user.Username)
 	}
 	return userList
+}
+
+func (r *ChatRoom) FindTeamByID(teamID int) *Team {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	for team := range r.Teams {
+		if team.ID == teamID {
+			return team
+		}
+	}
+
+	return nil
 }
