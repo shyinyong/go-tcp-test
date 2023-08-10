@@ -10,6 +10,11 @@ func TestChatServer(t *testing.T) {
 	serverAddr := "localhost:8083"
 	// Connect two clients to the chat server
 	client1, err := net.Dial("tcp", serverAddr)
+
+	//sender := chat.NewUser()
+	// 假设 sender 和 receiver 是 User 实例
+	//sender.SendPrivateMessage(receiver, "Hello, this is a private message.")
+
 	assert.NoError(t, err)
 	//defer client1.Close()
 	//

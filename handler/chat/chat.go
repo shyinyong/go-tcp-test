@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"github.com/golang/protobuf/proto"
+	"github.com/shyinyong/go-tcp-test/pb/chat"
 	"github.com/shyinyong/go-tcp-test/utils"
 	"log"
 	"net"
@@ -70,7 +72,7 @@ func (s *Server) handleChatConnection(conn net.Conn) {
 	}
 
 	// Create a User instance
-	user := NewUser(conn)
+	user := NewUser(conn, s)
 	user.Username = username
 	user.Conn = conn
 	user.Writer = bufio.NewWriter(conn)
@@ -121,4 +123,34 @@ func (s *Server) Stop() {
 		}
 	}
 	s.cancel() // cancel all goroutines
+}
+
+// 发送世界聊天消息
+func (s *Server) SendWorldChatMessage(sender *User, content string) {
+	chatMessage := &chat.ChatMessage{
+		Username: sender.Username,
+		Content:  content,
+	}
+
+	// 序列化消息并广播给世界聊天室的所有用户
+	serializedMessage, err := proto.Marshal(chatMessage)
+	if err != nil {
+		log.Println("Error serializing message:", err)
+		return
+	}
+
+	s.worldRoom.BroadcastMessage(serializedMessage)
+}
+
+// 处理接收到的世界聊天消息
+func (s *Server) handleWorldChatMessage(sender *User, serializedMessage []byte) {
+	chatMessage := &chat.ChatMessage{}
+	err := proto.Unmarshal(serializedMessage, chatMessage)
+	if err != nil {
+		log.Println("Error deserializing message:", err)
+		return
+	}
+
+	// 在世界聊天室广播消息
+	s.worldRoom.Broadcast(sender, fmt.Sprintf("[%s] %s", chatMessage.Username, chatMessage.Content))
 }

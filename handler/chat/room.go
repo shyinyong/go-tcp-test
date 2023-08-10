@@ -2,6 +2,7 @@ package chat
 
 import (
 	"fmt"
+	"log"
 	"sync"
 )
 
@@ -77,13 +78,6 @@ func (r *ChatRoom) start() {
 	}
 }
 
-func GetDefaultChatRoom() *ChatRoom {
-	if defaultChatRoom == nil {
-		defaultChatRoom = NewChatRoom("DefaultRoom")
-	}
-	return defaultChatRoom
-}
-
 func (r *ChatRoom) AddUser(user *User) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -92,15 +86,6 @@ func (r *ChatRoom) AddUser(user *User) {
 	user.Room = r
 
 	//r.Users[user] = true
-}
-
-// BroadcastSystemMessage broadcasts a system message to all users in the room
-func (r *ChatRoom) BroadcastSystemMessage(message string) {
-	r.systemMsgMu.Lock()
-	r.systemMsg = message
-	r.systemMsgMu.Unlock()
-
-	r.broadcast <- message
 }
 
 // GetUserList returns the list of usernames of users in the room
@@ -126,4 +111,31 @@ func (r *ChatRoom) FindTeamByID(teamID int) *Team {
 	}
 
 	return nil
+}
+
+// BroadcastSystemMessage broadcasts a system message to all users in the room
+func (r *ChatRoom) BroadcastSystemMessage(message string) {
+	r.systemMsgMu.Lock()
+	r.systemMsg = message
+	r.systemMsgMu.Unlock()
+
+	r.broadcast <- message
+}
+
+func (r *ChatRoom) BroadcastMessage(message []byte) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	for user := range r.Users {
+		_, err := user.Conn.Write(message) // 将消息直接写入连接
+		if err != nil {
+			log.Println("Error sending message to user:", err)
+		}
+	}
+}
+
+func GetDefaultChatRoom() *ChatRoom {
+	if defaultChatRoom == nil {
+		defaultChatRoom = NewChatRoom("DefaultRoom")
+	}
+	return defaultChatRoom
 }
