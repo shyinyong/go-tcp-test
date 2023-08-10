@@ -88,18 +88,11 @@ func (u *User) sendMessage(message string) {
 }
 
 func (u *User) disconnect() {
-	// Implement this method to remove the user from the chat room
-	// and perform any necessary cleanup
-
 	log.Printf("User %s disconnected", u.Username)
-
 	// Remove the user from the chat room
 	if u.Room != nil {
 		u.Room.RemoveUser(u)
 	}
-
-	// Close the connection
 	close(u.disconnectSignal)
-
 	u.Conn.Close()
 }

@@ -12,15 +12,19 @@ import (
 type Server struct {
 	mutex         sync.Mutex
 	rooms         map[string]*ChatRoom
-	defaultRoom   *ChatRoom // Default chat room
+	defaultRoom   *ChatRoom // Default chat room `Only server send message to me`
+	worldRoom     *ChatRoom // World chat room
 	systemMessage chan string
-	listener      net.Listener // Listener instance
+	// ...
+	listener  net.Listener
+	userRooms map[*User]*ChatRoom
 }
 
 func NewServer() *Server {
 	return &Server{
 		rooms:         make(map[string]*ChatRoom),
 		defaultRoom:   GetDefaultChatRoom(),
+		worldRoom:     NewChatRoom("World Chat"),
 		systemMessage: make(chan string),
 	}
 }
@@ -35,6 +39,7 @@ func (s *Server) Start(address string) {
 
 	// 启动系统消息处理
 	go s.handleSystemMessages()
+
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
@@ -63,12 +68,8 @@ func (s *Server) handleChatConnection(conn net.Conn) {
 
 	s.defaultRoom.AddUser(user)
 
-	room := GetDefaultChatRoom()
-	onlineUserCount := len(room.Users)
-	fmt.Printf("New join default room , current user count:%d\n", onlineUserCount)
-
 	// Send a welcome message to the user
-	//room.SendSystemMessage(fmt.Sprintf("Welcome, %s!", user.Username))
+	s.defaultRoom.BroadcastSystemMessage(fmt.Sprintf("Welcome, %s!", user.Username))
 
 	// Handle user messages in a separate goroutine
 	go user.listenForMessages()
@@ -95,12 +96,8 @@ func (s *Server) SendSystemMessage(message string) {
 func (s *Server) handleSystemMessages() {
 	for {
 		message := <-s.systemMessage
-		s.defaultRoom.BroadcastSystemMessage(message)
+		s.worldRoom.BroadcastSystemMessage(message)
 	}
-}
-func (s *Server) broadcastSystemMessage(message string) {
-	// Broadcast the system message to all users in the default room
-	s.defaultRoom.BroadcastSystemMessage(message)
 }
 
 func (s *Server) Stop() {

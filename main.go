@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"database/sql"
 	"fmt"
 	"github.com/jmoiron/sqlx"
@@ -8,20 +9,34 @@ import (
 	"github.com/shyinyong/go-tcp-test/config"
 	"github.com/shyinyong/go-tcp-test/db/mysql"
 	"log"
+	"net"
 	"time"
 )
 
-func printHello() {
-	fmt.Println("hello world")
-}
-
 func main() {
-	fmt.Println("main start")
-	go printHello()
-	fmt.Println("main end")
-	time.Sleep(10)
-	return
+	serverAddr := "localhost:8083"
+	conn, err := net.Dial("tcp", serverAddr)
 
+	// step1, login response
+	buffer := make([]byte, 1024)
+	var response bytes.Buffer
+	for {
+		n, err := conn.Read(buffer)
+		if err != nil {
+			fmt.Println("Error reading")
+			return
+		}
+		response.Write(buffer[:n])
+		if n < len(buffer) {
+			break
+		}
+	}
+	fmt.Printf("Received server data:%s\n", response.String())
+
+	for {
+		time.Sleep(1)
+	}
+	return
 	// Config env initialize
 	cfg, err := config.LoadConfig(".")
 	if err != nil {
