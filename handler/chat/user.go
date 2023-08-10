@@ -18,7 +18,7 @@ type User struct {
 	Room                  *ChatRoom
 	Team                  *Team  // 队伍聊天
 	Guild                 *Guild // 公会聊天
-	PrivateMessageChannel chan *chat.PrivateMessage
+	PrivateMessageChannel chan *chat.ChatMessage
 	Writer                *bufio.Writer
 	disconnectSignal      chan struct{} // Signal to stop reading messages on disconnect
 }
@@ -29,7 +29,7 @@ func NewUser(conn net.Conn, server *Server) *User {
 		Writer:                bufio.NewWriter(conn),
 		disconnectSignal:      make(chan struct{}),
 		Server:                server, // 设置 Server 实例
-		PrivateMessageChannel: make(chan *chat.PrivateMessage),
+		PrivateMessageChannel: make(chan *chat.ChatMessage),
 	}
 	go user.handlePrivateMessages() // 启动私聊消息处理协程
 	return user
@@ -165,14 +165,14 @@ func (u *User) sendChatMessage(content string, chatType chat.ChatMessage_ChatTyp
 	u.Conn.Write(messageBytes)
 }
 
-func (u *User) handleMessage(message *chat.PrivateMessage) {
+func (u *User) handleMessage(message *chat.ChatMessage) {
 	// 处理私聊消息
 	if u.Room == u.Server.worldRoom {
 		u.Server.SendWorldChatMessage(u, message.GetContent())
 	} else {
 		// 这里可以根据消息类型执行不同的操作
 		// 比如处理私聊消息
-		receiver := u.Room.FindUserByUsername(message.GetReceiver())
+		receiver := u.Room.FindUserByUsername(message.GetReceiverUsername())
 		if receiver != nil {
 			u.SendPrivateMessage(receiver, message.GetContent())
 		} else {
@@ -184,10 +184,10 @@ func (u *User) handleMessage(message *chat.PrivateMessage) {
 // SendPrivateMessage 发送私聊消息
 func (u *User) SendPrivateMessage(receiver *User, content string) {
 	// 创建私聊消息
-	privateMsg := &chat.PrivateMessage{
-		Sender:   u.Username,
-		Receiver: receiver.Username,
-		Content:  content,
+	privateMsg := &chat.ChatMessage{
+		SenderUsername:   u.Username,
+		ReceiverUsername: receiver.Username,
+		Content:          content,
 	}
 	// 将私聊消息发送给目标用户
 	receiver.PrivateMessageChannel <- privateMsg
@@ -216,7 +216,8 @@ func (u *User) handlePrivateMessages() {
 		}
 	}
 }
-func (u *User) handleReceivedPrivateMessage(privateMsg *chat.PrivateMessage) {
+
+func (u *User) handleReceivedPrivateMessage(privateMsg *chat.ChatMessage) {
 	// 在这里处理接收到的私聊消息，例如将消息发送给用户、记录日志等
 	fmt.Printf("handleReceivedPrivateMessage:%s", privateMsg.Content)
 }

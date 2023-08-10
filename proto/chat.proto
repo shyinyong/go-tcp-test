@@ -1,9 +1,11 @@
 syntax = "proto3";
 
 package chat;
+option go_package = "/chat";
+
 //import "google/protobuf/timestamp.proto";
 // protoc -I=D:\projects\go-tcp-test --go_out=D:\projects\go-tcp-test\pb D:\projects\go-tcp-test\proto\*.proto
-option go_package = "/chat";
+// protoc -I=./ --go_out=./pb ./proto/*.proto
 
 enum ChatMessage_ChatType {
   WORLD = 0;
@@ -16,20 +18,8 @@ message ChatMessage {
   string content = 2;
   ChatMessage_ChatType  chat_type = 3; // 1: World, 2: Guild, 3: Private
   string receiver_username = 4; // Only used for Private chat
-
-}
-
-message PrivateMessage {
-  string sender = 1;
-  string receiver = 2;
-  string content = 3;
 }
 
 message SystemMessage {
   string content = 1;
-}
-
-message TeamMessage {
-  string sender = 1;
-  string content = 2;
 }

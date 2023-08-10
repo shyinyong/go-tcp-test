@@ -2,6 +2,8 @@ package chat
 
 import (
 	"fmt"
+	"github.com/golang/protobuf/proto"
+	"github.com/shyinyong/go-tcp-test/pb/chat"
 	"log"
 	"sync"
 )
@@ -114,23 +116,44 @@ func (r *ChatRoom) FindTeamByID(teamID int) *Team {
 }
 
 // BroadcastSystemMessage broadcasts a system message to all users in the room
-func (r *ChatRoom) BroadcastSystemMessage(message string) {
+func (r *ChatRoom) BroadcastSystemMessage(message *chat.SystemMessage) {
 	r.systemMsgMu.Lock()
-	r.systemMsg = message
+	// 序列化系统消息
+	messageBytes, err := proto.Marshal(message)
+	if err != nil {
+		log.Println("Error serializing system message:", err)
+		return
+	}
 	r.systemMsgMu.Unlock()
-
-	r.broadcast <- message
+	// 发送消息类型和消息内容
+	r.BroadcastMessage(messageBytes)
 }
 
 func (r *ChatRoom) BroadcastMessage(message []byte) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+
 	for user := range r.Users {
 		_, err := user.Conn.Write(message) // 将消息直接写入连接
 		if err != nil {
 			log.Println("Error sending message to user:", err)
 		}
 	}
+
+	// message *chat.ChatMessage
+
+	//messageBytes, err := proto.Marshal(message)
+	//if err != nil {
+	//	log.Println("Error marshaling chat message:", err)
+	//	return
+	//}
+	//
+	//for user := range r.Users {
+	//	_, err := user.Conn.Write(messageBytes) // 将消息直接写入连接
+	//	if err != nil {
+	//		log.Println("Error sending message to user:", err)
+	//	}
+	//}
 }
 
 func GetDefaultChatRoom() *ChatRoom {

@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"context"
 	"fmt"
-	"github.com/golang/protobuf/proto"
 	"github.com/shyinyong/go-tcp-test/pb/chat"
 	"github.com/shyinyong/go-tcp-test/utils"
 	"log"
@@ -22,7 +21,7 @@ type Server struct {
 	defaultRoom   *ChatRoom // Default chat room `Only server send message to me`
 	worldRoom     *ChatRoom // World chat room
 	userRooms     map[*User]*ChatRoom
-	systemMessage chan string
+	systemMessage chan *chat.SystemMessage
 }
 
 func NewServer() *Server {
@@ -34,7 +33,7 @@ func NewServer() *Server {
 		rooms:         make(map[string]*ChatRoom),
 		defaultRoom:   GetDefaultChatRoom(),
 		worldRoom:     NewChatRoom("World Chat"),
-		systemMessage: make(chan string),
+		systemMessage: make(chan *chat.SystemMessage),
 	}
 }
 
@@ -61,6 +60,16 @@ func (s *Server) Start(address string) {
 	}
 }
 
+func (s *Server) Stop() {
+	if s.listener != nil {
+		err := s.listener.Close()
+		if err != nil {
+			log.Println("Error closing listener:", err)
+		}
+	}
+	s.cancel() // cancel all goroutines
+}
+
 func (s *Server) handleChatConnection(conn net.Conn) {
 	defer conn.Close()
 
@@ -71,7 +80,6 @@ func (s *Server) handleChatConnection(conn net.Conn) {
 		return
 	}
 
-	// Create a User instance
 	user := NewUser(conn, s)
 	user.Username = username
 	user.Conn = conn
@@ -90,17 +98,10 @@ func (s *Server) handleChatConnection(conn net.Conn) {
 }
 
 func (s *Server) authenticateUser(conn net.Conn) (string, bool) {
-	// Implement user authentication logic here
-	// Read user credentials from the connection
 	// Query the database or use any other method to authenticate the user
 	// Return the username and a boolean indicating whether authentication succeeded
 	username := utils.RandomUsername()
 	return username, true // Replace with actual values
-}
-
-// SendSystemMessage 发送系统消息
-func (s *Server) SendSystemMessage(message string) {
-	s.systemMessage <- message
 }
 
 // 处理系统消息
@@ -115,42 +116,54 @@ func (s *Server) handleSystemMessages() {
 	}
 }
 
-func (s *Server) Stop() {
-	if s.listener != nil {
-		err := s.listener.Close()
-		if err != nil {
-			log.Println("Error closing listener:", err)
-		}
-	}
-	s.cancel() // cancel all goroutines
-}
-
 // 发送世界聊天消息
 func (s *Server) SendWorldChatMessage(sender *User, content string) {
+	// 构建世界聊天消息
 	chatMessage := &chat.ChatMessage{
-		Username: sender.Username,
-		Content:  content,
+		SenderUsername: sender.Username,
+		Content:        content,
+		ChatType:       chat.ChatMessage_ChatType_WORLD,
 	}
 
-	// 序列化消息并广播给世界聊天室的所有用户
-	serializedMessage, err := proto.Marshal(chatMessage)
-	if err != nil {
-		log.Println("Error serializing message:", err)
-		return
+	// 发送世界聊天消息
+	s.worldRoom.BroadcastMessage(chatMessage)
+}
+func (s *Server) SendGuildChatMessage(sender *User, content string) {
+	// 构建公会聊天消息
+	chatMessage := &chat.ChatMessage{
+		SenderUsername: sender.Username,
+		Content:        content,
+		ChatType:       chat.ChatMessage_ChatType_GUILD,
 	}
 
-	s.worldRoom.BroadcastMessage(serializedMessage)
+	// 获取用户所在的公会聊天频道（根据您的逻辑实现）
+	guildChatRoom := sender.Guild.ChatRoom
+	// 发送公会聊天消息
+	guildChatRoom.BroadcastMessage(chatMessage)
+
+	// 发送公会聊天消息
+	// 这里需要根据用户所在的公会找到对应的公会聊天频道进行消息分发
+	// 暂时留空
 }
 
-// 处理接收到的世界聊天消息
-func (s *Server) handleWorldChatMessage(sender *User, serializedMessage []byte) {
-	chatMessage := &chat.ChatMessage{}
-	err := proto.Unmarshal(serializedMessage, chatMessage)
-	if err != nil {
-		log.Println("Error deserializing message:", err)
-		return
+func (s *Server) SendPrivateChatMessage(sender *User, receiver *User, content string) {
+	// 构建私人聊天消息
+	chatMessage := &chat.ChatMessage{
+		SenderUsername:   sender.Username,
+		Content:          content,
+		ChatType:         chat.ChatMessage_ChatType_PRIVATE,
+		ReceiverUsername: receiver.Username,
 	}
 
-	// 在世界聊天室广播消息
-	s.worldRoom.Broadcast(sender, fmt.Sprintf("[%s] %s", chatMessage.Username, chatMessage.Content))
+	// 发送私人聊天消息
+	// 这里需要判断目标用户是否在线，如果在线则直接发送，如果不在线则暂存或发送离线通知
+	// 查找目标用户
+	targetUser := s.FindUserByUsername(receiver.Username)
+	if targetUser != nil {
+		// 发送私人聊天消息给目标用户
+		targetUser.PrivateMessageChannel <- chatMessage
+	} else {
+		log.Printf("User %s not found or not in the same room.", receiver.Username)
+	}
+
 }
