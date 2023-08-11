@@ -20,11 +20,24 @@ func main() {
 	// Create a new instance of the gateway server
 	gs := gateway.NewServer(cfg, store)
 
+	// 创建消息分派器
+	dispatcher := gateway.NewDispatcher()
+	// 注册处理函数
+	dispatcher.RegisterHandler(1, gateway.LoginHandler)
+	dispatcher.RegisterHandler(2, gateway.ExitGameHandler)
+
+	// 假设收到消息
+	msgType := uint16(1)
+	msgID := uint32(1)
+	body := []byte("login message body")
+	// 调用消息分派器
+	dispatcher.Dispatch(msgType, msgID, body)
+
 	// Initialize the serverAddresses map with the addresses of different servers
 	serverAddresses := map[string]string{
 		"login": "localhost:8081",
 		//"game":  "game-server:8082",
-		"chat": "chat-server:8083",
+		//"chat": "chat-server:8083",
 		// Add more server addresses if needed...
 	}
 	gs.SetServerAddresses(serverAddresses)
