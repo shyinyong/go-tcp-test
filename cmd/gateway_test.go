@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	protobuf "github.com/shyinyong/go-tcp-test/pb/message"
+	"github.com/shyinyong/go-tcp-test/utils"
 	"google.golang.org/protobuf/proto"
 	"log"
 	"net"
@@ -22,27 +23,24 @@ func TestLogin(t *testing.T) {
 		Username: "apple",
 		Password: "123456",
 	}
-	clientMsg := &protobuf.ClientMessage{
-		Type: protobuf.ClientMessage_LOGIN_REQUEST,
-		Message: &protobuf.ClientMessage_LoginRequest{
-			LoginRequest: loginRequest,
-		},
-	}
 
 	// Serialize the message
-	data, err := proto.Marshal(clientMsg)
+	data, err := proto.Marshal(loginRequest)
 	if err != nil {
 		log.Println("Error marshaling message:", err)
 		return
 	}
 
+	// Send to server
+	var msgType uint16 = 1
+	var msgId uint32 = 2
+	send := utils.PackMessage(msgType, msgId, data)
 	// Send the message to the gateway server
-	_, err = conn.Write(data)
+	_, err = conn.Write(send)
 	if err != nil {
 		log.Println("Error writing to connection:", err)
 		return
 	}
-
 	fmt.Println("Login request sent to gateway server.")
 
 	//// Read and handle the response from the server

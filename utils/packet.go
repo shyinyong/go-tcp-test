@@ -11,9 +11,9 @@ const (
 )
 
 type Packet struct {
-	MessageType uint16
-	MessageID   uint32
-	Body        []byte
+	msgType uint16
+	msgId   uint32
+	Body    []byte
 }
 
 // header size include:  msg type 2 + msg id 4 + msg body 4
@@ -26,17 +26,17 @@ func (p *Packet) GetBodyLen() int {
 	return len(p.Body)
 }
 
-func PackMessage(messageType uint16, messageID uint32, body []byte) []byte {
+func PackMessage(msgType uint16, msgId uint32, body []byte) []byte {
 	packet := Packet{
-		MessageType: messageType,
-		MessageID:   messageID,
-		Body:        body,
+		msgType: msgType,
+		msgId:   msgId,
+		Body:    body,
 	}
 
 	// 将 Packet 转换为二进制数据
 	var buf bytes.Buffer
-	binary.Write(&buf, binary.BigEndian, packet.MessageType)
-	binary.Write(&buf, binary.BigEndian, packet.MessageID)
+	binary.Write(&buf, binary.BigEndian, packet.msgType)
+	binary.Write(&buf, binary.BigEndian, packet.msgId)
 	binary.Write(&buf, binary.BigEndian, uint32(len(packet.Body)))
 	buf.Write(packet.Body)
 
@@ -48,8 +48,8 @@ func UnpackMessage(data []byte) (*Packet, error) {
 		return nil, errors.New("insufficient data for packet header")
 	}
 
-	messageType := binary.BigEndian.Uint16(data[:2])
-	messageID := binary.BigEndian.Uint32(data[2:6])
+	msgType := binary.BigEndian.Uint16(data[:2])
+	msgId := binary.BigEndian.Uint32(data[2:6])
 	bodyLength := binary.BigEndian.Uint32(data[6:10])
 
 	if len(data) < int(HeaderSize+bodyLength) {
@@ -57,29 +57,29 @@ func UnpackMessage(data []byte) (*Packet, error) {
 	}
 
 	packet := &Packet{
-		MessageType: messageType,
-		MessageID:   messageID,
-		Body:        data[HeaderSize : HeaderSize+bodyLength],
+		msgType: msgType,
+		msgId:   msgId,
+		Body:    data[HeaderSize : HeaderSize+bodyLength],
 	}
 
 	return packet, nil
 }
 
 //
-//// MessageTypes 消息类型定义
-//type MessageTypes uint8
+//// msgTypes 消息类型定义
+//type msgTypes uint8
 //
 //const (
-//	// MessageTypeA 消息类型A
-//	MessageTypeA MessageTypes = 1
-//	// MessageTypeB 消息类型B
-//	MessageTypeB MessageTypes = 2
-//	// MessageTypeC 消息类型C
-//	MessageTypeC MessageTypes = 3
+//	// msgTypeA 消息类型A
+//	msgTypeA msgTypes = 1
+//	// msgTypeB 消息类型B
+//	msgTypeB msgTypes = 2
+//	// msgTypeC 消息类型C
+//	msgTypeC msgTypes = 3
 //)
 //
 //// 压包方法
-//func packMessage(messageType MessageTypes, messageID uint32, chatMessage proto.Message) ([]byte, error) {
+//func packMessage(msgType msgTypes, msgId uint32, chatMessage proto.Message) ([]byte, error) {
 //	// 序列化聊天消息
 //	serializedMessage, err := proto.Marshal(chatMessage)
 //	if err != nil {
@@ -96,8 +96,8 @@ func UnpackMessage(data []byte) (*Packet, error) {
 //
 //	// 构建包头
 //	packetHeader := make([]byte, 9)
-//	packetHeader[0] = byte(messageType)                                // 消息类型
-//	binary.BigEndian.PutUint32(packetHeader[1:], messageID)            // 消息ID
+//	packetHeader[0] = byte(msgType)                                // 消息类型
+//	binary.BigEndian.PutUint32(packetHeader[1:], msgId)            // 消息ID
 //	binary.BigEndian.PutUint32(packetHeader[5:], uint32(packetLength)) // 包长度
 //
 //	// 拼接包头和消息体
@@ -108,7 +108,7 @@ func UnpackMessage(data []byte) (*Packet, error) {
 //}
 //
 //// 解包方法
-//func unpackMessage(packedData []byte) (MessageTypes, uint32, []byte, error) {
+//func unpackMessage(packedData []byte) (msgTypes, uint32, []byte, error) {
 //	fmt.Printf("unpackMessage, packeddata size:%d \n", len(packedData))
 //
 //	if len(packedData) < 9 {
@@ -116,12 +116,12 @@ func UnpackMessage(data []byte) (*Packet, error) {
 //	}
 //
 //	// 解析包头
-//	messageType := MessageTypes(packedData[0])               // 消息类型
-//	messageID := binary.BigEndian.Uint32(packedData[1:5])    // 消息ID
+//	msgType := msgTypes(packedData[0])               // 消息类型
+//	msgId := binary.BigEndian.Uint32(packedData[1:5])    // 消息ID
 //	packetLength := binary.BigEndian.Uint32(packedData[5:9]) // 包长度
 //
-//	fmt.Printf("messageType :%d \n", messageType)
-//	fmt.Printf("messageID :%d \n", messageID)
+//	fmt.Printf("msgType :%d \n", msgType)
+//	fmt.Printf("msgId :%d \n", msgId)
 //	fmt.Printf("packetLength :%d \n", packetLength)
 //
 //	if uint32(len(packedData)) < packetLength {
@@ -129,5 +129,5 @@ func UnpackMessage(data []byte) (*Packet, error) {
 //	}
 //
 //	// 返回解包后的消息类型、消息ID和消息体
-//	return messageType, messageID, packedData[9 : 9+packetLength], nil
+//	return msgType, msgId, packedData[9 : 9+packetLength], nil
 //}
