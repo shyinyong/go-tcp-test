@@ -2,6 +2,7 @@ package chat
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"github.com/golang/protobuf/proto"
 	"github.com/shyinyong/go-tcp-test/pb/chat"
@@ -12,26 +13,24 @@ import (
 
 // User represents a connected user
 type User struct {
-	Username              string
-	Conn                  net.Conn
-	Server                *Server
-	Room                  *ChatRoom
-	Team                  *Team  // 队伍聊天
-	Guild                 *Guild // 公会聊天
-	PrivateMessageChannel chan *chat.ChatMessage
-	Writer                *bufio.Writer
-	disconnectSignal      chan struct{} // Signal to stop reading messages on disconnect
+	UserID           string
+	Username         string
+	Conn             net.Conn
+	Server           *Server
+	Room             *Room
+	Team             *Team  // 队伍聊天
+	Guild            *Guild // 公会聊天
+	Writer           *bufio.Writer
+	disconnectSignal chan struct{} // Signal to stop reading messages on disconnect
 }
 
 func NewUser(conn net.Conn, server *Server) *User {
 	user := &User{
-		Conn:                  conn,
-		Writer:                bufio.NewWriter(conn),
-		disconnectSignal:      make(chan struct{}),
-		Server:                server, // 设置 Server 实例
-		PrivateMessageChannel: make(chan *chat.ChatMessage),
+		Conn:             conn,
+		Writer:           bufio.NewWriter(conn),
+		disconnectSignal: make(chan struct{}),
+		Server:           server, // 设置 Server 实例
 	}
-	go user.handlePrivateMessages() // 启动私聊消息处理协程
 	return user
 }
 
@@ -45,10 +44,13 @@ func (u *User) disconnect() {
 	u.Conn.Close()
 }
 
-func (u *User) listenForMessages() {
+// 监听消息处理
+func (u *User) listenForMessagesWithContext(ctx context.Context) {
 	reader := bufio.NewReader(u.Conn)
 	for {
 		select {
+		case <-ctx.Done():
+			return // 当连接关闭或其他情况时取消消息监听
 		case <-u.disconnectSignal:
 			return // 停止读取如果收到断开信号
 		default:
@@ -72,21 +74,19 @@ func (u *User) listenForMessages() {
 	}
 }
 
+func (u *User) listenForMessages() {
+	// 创建一个上下文，用于控制消息监听的生命周期
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel() // 在退出方法时取消消息监听
+	// 将上下文传递给 listenForMessagesWithContext
+	u.listenForMessagesWithContext(ctx)
+}
+
 func (u *User) handleChatMessage() {
 	// 读取消息长度
-	lengthBytes := make([]byte, 4)
-	_, err := io.ReadFull(u.Conn, lengthBytes)
+	messageBytes, err := u.readMessage()
 	if err != nil {
-		log.Println("Error reading message length:", err)
-		return
-	}
-	messageLength := int(lengthBytes[0])<<24 | int(lengthBytes[1])<<16 | int(lengthBytes[2])<<8 | int(lengthBytes[3])
-
-	// 读取消息内容
-	messageBytes := make([]byte, messageLength)
-	_, err = io.ReadFull(u.Conn, messageBytes)
-	if err != nil {
-		log.Println("Error reading message content:", err)
+		log.Println("Error reading message:", err)
 		return
 	}
 
@@ -103,7 +103,7 @@ func (u *User) handleChatMessage() {
 	case chat.ChatMessage_ChatType_WORLD:
 		u.sendWorldChatMessage(chatMessage.Content)
 	case chat.ChatMessage_ChatType_GUILD:
-		// 处理公会聊天
+		u.sendGuildChatMessage(chatMessage.Content)
 	case chat.ChatMessage_ChatType_PRIVATE:
 		u.handlePrivateMessage(chatMessage)
 	default:
@@ -114,10 +114,17 @@ func (u *User) handleChatMessage() {
 func (u *User) handlePrivateMessage(chatMessage chat.ChatMessage) {
 	targetUser := u.Room.FindUserByUsername(chatMessage.ReceiverUsername)
 	if targetUser != nil {
-		targetUser.sendMessage(fmt.Sprintf("[Private from %s] %s", u.Username, chatMessage.Content))
+		//targetUser.sendMessage(fmt.Sprintf("[Private from %s] %s", u.Username, chatMessage.Content))
+		u.sendPrivateChatMessage(targetUser, chatMessage.Content)
 	} else {
 		u.sendMessage(fmt.Sprintf("User %s not found or not in the same room.", chatMessage.ReceiverUsername))
 	}
+}
+
+// 发送普通消息
+func (u *User) sendMessage(message string) {
+	u.Writer.WriteString(message + "\n")
+	u.Writer.Flush()
 }
 
 func (u *User) sendWorldChatMessage(content string) {
@@ -142,18 +149,41 @@ func (u *User) sendWorldChatMessage(content string) {
 	u.Conn.Write(messageBytes)
 }
 
-// 发送聊天消息
-func (u *User) sendChatMessage(content string, chatType chat.ChatMessage_ChatType, receiverUsername string) {
+func (u *User) sendGuildChatMessage(content string) {
+	if u.Guild != nil {
+		// 构建公会聊天消息
+		guildChatMessage := &chat.ChatMessage{
+			SenderUsername:   u.Username,
+			Content:          content,
+			ChatType:         chat.ChatMessage_ChatType_GUILD,
+			ReceiverUsername: "",
+		}
+
+		// 序列化消息
+		messageBytes, err := proto.Marshal(guildChatMessage)
+		if err != nil {
+			log.Println("Error serializing guild chat message:", err)
+			return
+		}
+
+		// 发送消息类型和消息内容
+		u.Conn.Write([]byte{1}) // 1 表示聊天消息
+		u.Conn.Write([]byte{byte(len(messageBytes) >> 24), byte(len(messageBytes) >> 16), byte(len(messageBytes) >> 8), byte(len(messageBytes))})
+		u.Conn.Write(messageBytes)
+	}
+}
+
+func (u *User) sendPrivateChatMessage(receiver *User, content string) {
 	// 构建聊天消息
-	message := &chat.ChatMessage{
+	chatMessage := &chat.ChatMessage{
 		SenderUsername:   u.Username,
 		Content:          content,
-		ChatType:         chatType,
-		ReceiverUsername: receiverUsername,
+		ChatType:         chat.ChatMessage_ChatType_PRIVATE,
+		ReceiverUsername: receiver.Username,
 	}
 
 	// 序列化消息
-	messageBytes, err := proto.Marshal(message)
+	messageBytes, err := proto.Marshal(chatMessage)
 	if err != nil {
 		log.Println("Error serializing chat message:", err)
 		return
@@ -165,59 +195,41 @@ func (u *User) sendChatMessage(content string, chatType chat.ChatMessage_ChatTyp
 	u.Conn.Write(messageBytes)
 }
 
-func (u *User) handleMessage(message *chat.ChatMessage) {
-	// 处理私聊消息
-	if u.Room == u.Server.worldRoom {
-		u.Server.SendWorldChatMessage(u, message.GetContent())
-	} else {
-		// 这里可以根据消息类型执行不同的操作
-		// 比如处理私聊消息
-		receiver := u.Room.FindUserByUsername(message.GetReceiverUsername())
-		if receiver != nil {
-			u.SendPrivateMessage(receiver, message.GetContent())
-		} else {
-			u.sendMessage("User not found or not in the same room.")
-		}
+// 发送系统消息
+func (u *User) sendSystemMessage(message string) {
+	// 构建系统消息
+	systemMessage := &chat.SystemMessage{
+		Content: message,
 	}
-}
 
-// SendPrivateMessage 发送私聊消息
-func (u *User) SendPrivateMessage(receiver *User, content string) {
-	// 创建私聊消息
-	privateMsg := &chat.ChatMessage{
-		SenderUsername:   u.Username,
-		ReceiverUsername: receiver.Username,
-		Content:          content,
+	// 序列化消息
+	messageBytes, err := proto.Marshal(systemMessage)
+	if err != nil {
+		log.Println("Error serializing system message:", err)
+		return
 	}
-	// 将私聊消息发送给目标用户
-	receiver.PrivateMessageChannel <- privateMsg
+
+	// 发送消息类型和消息内容
+	u.Conn.Write([]byte{2}) // 2 表示系统消息
+	u.Conn.Write([]byte{byte(len(messageBytes) >> 24), byte(len(messageBytes) >> 16), byte(len(messageBytes) >> 8), byte(len(messageBytes))})
+	u.Conn.Write(messageBytes)
 }
 
-func (u *User) sendMessage(message string) {
-	u.Writer.WriteString(message + "\n")
-	u.Writer.Flush()
-}
-
-func (u *User) sendTeamMessage(message string) {
-	if u.Team != nil {
-		u.Team.Broadcast(u, message)
+func (u *User) readMessage() ([]byte, error) {
+	// 读取消息长度
+	lengthBytes := make([]byte, 4)
+	_, err := io.ReadFull(u.Conn, lengthBytes)
+	if err != nil {
+		return nil, fmt.Errorf("error reading message length: %w", err)
 	}
-}
+	messageLength := int(lengthBytes[0])<<24 | int(lengthBytes[1])<<16 | int(lengthBytes[2])<<8 | int(lengthBytes[3])
 
-// handlePrivateMessages 处理私聊消息
-func (u *User) handlePrivateMessages() {
-	for {
-		select {
-		case <-u.disconnectSignal:
-			return
-		case privateMsg := <-u.PrivateMessageChannel:
-			// 处理接收到的私聊消息
-			u.handleReceivedPrivateMessage(privateMsg)
-		}
+	// 读取消息内容
+	messageBytes := make([]byte, messageLength)
+	_, err = io.ReadFull(u.Conn, messageBytes)
+	if err != nil {
+		return nil, fmt.Errorf("error reading message content: %w", err)
 	}
-}
 
-func (u *User) handleReceivedPrivateMessage(privateMsg *chat.ChatMessage) {
-	// 在这里处理接收到的私聊消息，例如将消息发送给用户、记录日志等
-	fmt.Printf("handleReceivedPrivateMessage:%s", privateMsg.Content)
+	return messageBytes, nil
 }

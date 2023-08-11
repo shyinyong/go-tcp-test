@@ -3,14 +3,15 @@ syntax = "proto3";
 package chat;
 option go_package = "/chat";
 
-//import "google/protobuf/timestamp.proto";
-// protoc -I=D:\projects\go-tcp-test --go_out=D:\projects\go-tcp-test\pb D:\projects\go-tcp-test\proto\*.proto
-// protoc -I=./ --go_out=./pb ./proto/*.proto
-
 enum ChatMessage_ChatType {
   WORLD = 0;
   GUILD = 1;
   PRIVATE = 2;
+}
+
+message LoginReq {
+  string username = 1;
+  string password = 2;
 }
 
 message ChatMessage {

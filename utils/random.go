@@ -32,8 +32,13 @@ func RandomString(n int) string {
 }
 
 // RandomOwner generates a random owner name
+func RandomUserID() int64 {
+	return RandomInt(10, 99)
+}
+
+// RandomOwner generates a random owner name
 func RandomUsername() string {
-	return RandomString(6)
+	return RandomString(4)
 }
 
 // RandomMoney generates a random amount of money

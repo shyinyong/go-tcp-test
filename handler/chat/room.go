@@ -8,9 +8,9 @@ import (
 	"sync"
 )
 
-var defaultChatRoom *ChatRoom
+var defaultRoom *Room
 
-type ChatRoom struct {
+type Room struct {
 	messages    []string
 	mu          sync.Mutex
 	Name        string
@@ -22,8 +22,8 @@ type ChatRoom struct {
 	systemMsgMu sync.Mutex
 }
 
-func NewChatRoom(name string) *ChatRoom {
-	room := &ChatRoom{
+func NewChatRoom(name string) *Room {
+	room := &Room{
 		Name:      name,
 		Users:     make(map[*User]bool),
 		broadcast: make(chan string),
@@ -33,10 +33,9 @@ func NewChatRoom(name string) *ChatRoom {
 }
 
 // FindUserByUsername finds a user in the same room by username
-func (r *ChatRoom) FindUserByUsername(username string) *User {
+func (r *Room) FindUserByUsername(username string) *User {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-
 	for user := range r.Users {
 		if user.Username == username {
 			return user
@@ -47,7 +46,7 @@ func (r *ChatRoom) FindUserByUsername(username string) *User {
 }
 
 // GetOnlineUsers returns a list of usernames of online users in the room
-func (r *ChatRoom) GetOnlineUsers() []string {
+func (r *Room) GetOnlineUsers() []string {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -59,16 +58,16 @@ func (r *ChatRoom) GetOnlineUsers() []string {
 	return onlineUsers
 }
 
-func (r *ChatRoom) RemoveUser(user *User) {
+func (r *Room) RemoveUser(user *User) {
 	delete(r.Users, user)
 }
 
-func (r *ChatRoom) Broadcast(sender *User, message string) {
+func (r *Room) Broadcast(sender *User, message string) {
 	// Send the message to the broadcast channel
 	r.broadcast <- fmt.Sprintf("[%s] %s: %s", r.Name, sender.Username, message)
 }
 
-func (r *ChatRoom) start() {
+func (r *Room) start() {
 	for {
 		select {
 		case message := <-r.broadcast:
@@ -80,7 +79,7 @@ func (r *ChatRoom) start() {
 	}
 }
 
-func (r *ChatRoom) AddUser(user *User) {
+func (r *Room) AddUser(user *User) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -91,7 +90,7 @@ func (r *ChatRoom) AddUser(user *User) {
 }
 
 // GetUserList returns the list of usernames of users in the room
-func (r *ChatRoom) GetUserList() []string {
+func (r *Room) GetUserList() []string {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -102,7 +101,7 @@ func (r *ChatRoom) GetUserList() []string {
 	return userList
 }
 
-func (r *ChatRoom) FindTeamByID(teamID int) *Team {
+func (r *Room) FindTeamByID(teamID int) *Team {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -116,7 +115,7 @@ func (r *ChatRoom) FindTeamByID(teamID int) *Team {
 }
 
 // BroadcastSystemMessage broadcasts a system message to all users in the room
-func (r *ChatRoom) BroadcastSystemMessage(message *chat.SystemMessage) {
+func (r *Room) BroadcastSystemMessage(message *chat.SystemMessage) {
 	r.systemMsgMu.Lock()
 	// 序列化系统消息
 	messageBytes, err := proto.Marshal(message)
@@ -129,7 +128,7 @@ func (r *ChatRoom) BroadcastSystemMessage(message *chat.SystemMessage) {
 	r.BroadcastMessage(messageBytes)
 }
 
-func (r *ChatRoom) BroadcastMessage(message []byte) {
+func (r *Room) BroadcastMessage(message []byte) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -156,9 +155,9 @@ func (r *ChatRoom) BroadcastMessage(message []byte) {
 	//}
 }
 
-func GetDefaultChatRoom() *ChatRoom {
-	if defaultChatRoom == nil {
-		defaultChatRoom = NewChatRoom("DefaultRoom")
+func GetDefaultRoom() *Room {
+	if defaultRoom == nil {
+		defaultRoom = NewChatRoom("DefaultRoom")
 	}
-	return defaultChatRoom
+	return defaultRoom
 }

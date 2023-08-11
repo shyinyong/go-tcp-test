@@ -11,6 +11,11 @@ func TestChatServer(t *testing.T) {
 	// Connect two clients to the chat server
 	client1, err := net.Dial("tcp", serverAddr)
 
+	//loginReq := &chat.LoginReq{
+	//	Username: "yinyong",
+	//	Password: "123456",
+	//}
+
 	//sender := chat.NewUser()
 	// 假设 sender 和 receiver 是 User 实例
 	//sender.SendPrivateMessage(receiver, "Hello, this is a private message.")
