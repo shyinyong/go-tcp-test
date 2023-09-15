@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/shyinyong/go-tcp-test/consts"
 	"github.com/shyinyong/go-tcp-test/msg_packet"
 	"github.com/shyinyong/go-tcp-test/pb/cs"
 	"github.com/stretchr/testify/assert"
@@ -16,7 +17,7 @@ func TestRunServer(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error creating GameServer: %v", err)
 	}
-	defer gameServer.listener.Close()
+	// defer gameServer.listener.Close()
 	go gameServer.Run()
 }
 
@@ -24,8 +25,8 @@ func TestLoginAndPing(t *testing.T) {
 	// 启动服务器
 	gameServer, err := NewGameServer()
 	assert.NoError(t, err)
-	gameServer.RegisterHandler(_const.CMMessageID_CMPing, CMPing)
-	gameServer.RegisterHandler(_const.CMMessageID_CMLogin, CMLogin)
+	gameServer.RegisterHandler(consts.CMMessageID_CMPing, CMPing)
+	gameServer.RegisterHandler(consts.CMMessageID_CMLogin, CMLogin)
 	go gameServer.Run()
 
 	// 模拟与服务器建立连接
@@ -70,14 +71,14 @@ func constructLoginMessage() []byte {
 	packet := msg_packet.NetworkPacket{
 		Header: msg_packet.MessageHeader{
 			PackageLen: 0, // 此处暂时设置为0，稍后会更新为正确的长度
-			MsgID:      _const.CMMessageID_CMLogin,
+			MsgID:      consts.CMMessageID_CMLogin,
 			SeqID:      12345,
 			MagicCode:  123,
 			Reserved:   0,
 		},
 		Body: messageBytes,
 	}
-	packet.Header.PackageLen = uint16(msg_packet.headerSize + len(packet.Body))
+	packet.Header.PackageLen = uint16(consts.HeaderSize + len(packet.Body))
 	packetBytes, err := msg_packet.EncodeNetworkPacket(packet)
 	if err != nil {
 		fmt.Println("Error encoding network packet:", err)
