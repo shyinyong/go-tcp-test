@@ -69,7 +69,7 @@ func UnpackMessage(data []byte) (*Packet, error) {
 //// msgTypes 消息类型定义
 //type msgTypes uint8
 //
-//const (
+//consts (
 //	// msgTypeA 消息类型A
 //	msgTypeA msgTypes = 1
 //	// msgTypeB 消息类型B

@@ -1,0 +1,374 @@
+package main
+
+import (
+	"bufio"
+	"bytes"
+	"database/sql"
+	"encoding/binary"
+	"fmt"
+	"github.com/golang/glog"
+	"github.com/jmoiron/sqlx"
+	"github.com/shyinyong/go-tcp-test/api"
+	"github.com/shyinyong/go-tcp-test/config"
+	"github.com/shyinyong/go-tcp-test/db"
+	"github.com/shyinyong/go-tcp-test/server"
+	"google.golang.org/protobuf/proto"
+	"log"
+	"net"
+	"reflect"
+	"sync"
+)
+
+type Client struct {
+	conn net.Conn
+}
+
+// NewClient 创建一个新的 Client 实例
+func NewClient() *Client {
+	// 初始化客户端属性
+	client := &Client{
+		// 在这里进行客户端属性的初始化
+	}
+
+	// 进行其他初始化操作
+
+	return client
+}
+
+type GameServer struct {
+	listener    net.Listener
+	clients     []*Client
+	clientMutex sync.Mutex
+}
+
+// 定义消息头结构体
+type MessageHeader struct {
+	PackageLen uint16
+	MsgID      uint16
+	SeqID      uint32
+	MagicCode  uint16
+	Reserved   uint16
+}
+
+func NewGameServer() (*GameServer, error) {
+	listener, err := net.Listen("tcp", "localhost:8080")
+	if err != nil {
+		return nil, err
+	}
+
+	return &GameServer{
+		listener:    listener,
+		clients:     make([]*Client, 0),
+		clientMutex: sync.Mutex{},
+	}, nil
+}
+
+// 运行游戏服务器
+func (gs *GameServer) Run() {
+	fmt.Println("Game server is running...")
+
+	for {
+		conn, err := gs.listener.Accept()
+		if err != nil {
+			fmt.Println("Accept error:", err)
+			continue
+		}
+
+		client := &Client{conn: conn}
+		gs.AddClient(client)
+
+		go gs.HandleClient(client)
+	}
+}
+
+// 处理客户端连接
+func (gs *GameServer) HandleClient(client *Client) {
+	defer gs.RemoveClient(client)
+	glog.Info("Client connected:", client.conn.RemoteAddr())
+	reader := bufio.NewReader(client.conn)
+	for {
+		// 读取客户端消息
+		message, err := reader.ReadString('\n')
+		if err != nil {
+			fmt.Println("Read error:", err)
+			break
+		}
+		// 处理接收到的消息
+		go gs.HandleMessage(client, message)
+	}
+
+	// 模拟休眠处理
+	if len(gs.clients) == 0 {
+		fmt.Println("No clients connected. Sleeping...")
+		// 休眠处理
+		<-make(chan struct{})
+	}
+}
+
+// 添加客户端连接
+func (gs *GameServer) AddClient(client *Client) {
+	gs.clientMutex.Lock()
+	defer gs.clientMutex.Unlock()
+
+	gs.clients = append(gs.clients, client)
+	fmt.Println("New client connected. Total clients:", len(gs.clients))
+}
+
+// 移除客户端连接
+func (gs *GameServer) RemoveClient(client *Client) {
+	gs.clientMutex.Lock()
+	defer gs.clientMutex.Unlock()
+
+	for i, c := range gs.clients {
+		if c == client {
+			gs.clients = append(gs.clients[:i], gs.clients[i+1:]...)
+			fmt.Println("Client disconnected. Total clients:", len(gs.clients))
+			break
+		}
+	}
+}
+
+// 处理接收到的消息
+func (gs *GameServer) HandleMessage(client *Client, message string) {
+	fmt.Println("Received message from client:", message)
+	// 解析消息头
+	header := &MessageHeader{}
+	err := gs.ParseHeader(message, header)
+	if err != nil {
+		fmt.Println("Failed to parse message header:", err)
+		return
+	}
+
+	// 解析消息体
+	body := message[12:] // 从第12字节开始为消息体
+
+	// 根据消息ID调用相应的处理函数
+	msgId := int32(header.MsgID) // 将uint16类型转换为int32类型
+
+	// 根据消息ID获取处理函数
+	handlerValue, ok := h.handlers[header.MsgID]
+	if !ok {
+		fmt.Println("Unsupported message ID:", header.MsgID)
+		return
+	}
+
+	// 创建消息结构体的实例
+	messageType := handlerValue.Type().In(0) // 获取处理函数的参数类型
+	msg := reflect.New(messageType.Elem()).Interface().(proto.Message)
+
+	// 反序列化消息体
+	err = proto.Unmarshal([]byte(body), msg)
+	if err != nil {
+		fmt.Println("Failed to parse message body:", err)
+		return
+	}
+
+	// 调用处理函数
+	handlerValue.Call([]reflect.Value{reflect.ValueOf(msg)})
+}
+
+// 解析消息头
+func (gs *GameServer) ParseHeader(message string, header *MessageHeader) error {
+	buf := bytes.NewBuffer([]byte(message))
+
+	// 解析PackageLen字段
+	err := binary.Read(buf, binary.BigEndian, &header.PackageLen)
+	if err != nil {
+		return err
+	}
+
+	// 解析MsgID字段
+	err = binary.Read(buf, binary.BigEndian, &header.MsgID)
+	if err != nil {
+		return err
+	}
+
+	// 解析SeqID字段
+	err = binary.Read(buf, binary.BigEndian, &header.SeqID)
+	if err != nil {
+		return err
+	}
+
+	// 解析MagicCode字段
+	err = binary.Read(buf, binary.BigEndian, &header.MagicCode)
+	if err != nil {
+		return err
+	}
+
+	// 解析Reserved字段
+	err = binary.Read(buf, binary.BigEndian, &header.Reserved)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// 示例：解析消息体为Protobuf结构体
+func (gs *GameServer) ParseBody(body []byte) {
+}
+
+type CsNetMsgHandler interface {
+	HandleMessage(message proto.Message)
+}
+
+type MessageHandler struct {
+	handlers map[int32]reflect.Value
+}
+
+func NewMessageHandler() *MessageHandler {
+	return &MessageHandler{
+		handlers: make(map[int32]reflect.Value),
+	}
+}
+
+func (h *MessageHandler) RegisterHandler(msgId int32, handler CsNetMsgHandler) {
+	h.handlers[msgId] = reflect.ValueOf(handler)
+}
+
+func (h *MessageHandler) HandleMessage(client *Client, message string) {
+	// 解析消息头
+	header := &MessageHeader{}
+	err := gs.ParseHeader(message, header)
+	if err != nil {
+		fmt.Println("Failed to parse message header:", err)
+		return
+	}
+
+	// 解析消息体
+	body := message[12:] // 从第12字节开始为消息体
+
+	// 根据消息ID获取处理函数
+	handlerValue, ok := h.handlers[header.MsgID]
+	if !ok {
+		fmt.Println("Unsupported message ID:", header.MsgID)
+		return
+	}
+
+	// 创建消息结构体的实例
+	messageType := handlerValue.Type().In(0) // 获取处理函数的参数类型
+	msg := reflect.New(messageType.Elem()).Interface().(proto.Message)
+
+	// 反序列化消息体
+	err = proto.Unmarshal([]byte(body), msg)
+	if err != nil {
+		fmt.Println("Failed to parse message body:", err)
+		return
+	}
+
+	// 调用处理函数
+	handlerValue.Call([]reflect.Value{reflect.ValueOf(msg)})
+}
+
+func main() {
+	// 创建客户端实例
+	client := NewClient()
+
+	// 假设message是从客户端接收到的原始消息字符串
+	message := "..."
+
+	// handler
+	handler := NewMessageHandler()
+	// 注册消息处理函数
+	handler.RegisterHandler(CMMessageID_CMPing, CMPingHandler{})
+	handler.RegisterHandler(CMMessageID_CMLogin, CMLoginHandler{})
+
+	// 处理客户端发送的消息
+	handler.HandleMessage(client, message)
+
+	// Config env initialize
+	//cfg, err := config.LoadConfig(".")
+	//if err != nil {
+	//	log.Fatal(err)
+	//	return
+	//}
+
+	// Initialize database connections
+	db.InitDB()
+
+	gameServer, err := NewGameServer()
+	if err != nil {
+		fmt.Println("Failed to start game server:", err)
+		return
+	}
+
+	gameServer.Run()
+
+	//store := db.GetDB()
+	//defer store.Close()
+	//
+	//// find db
+	//st, err := studentByID(store, 1)
+	//if err != nil {
+	//	fmt.Println(err)
+	//}
+	//fmt.Printf("studentByID record: %v \n", st)
+	//
+	//students, err := fetchStudents(store)
+	//if err != nil {
+	//	fmt.Println(err)
+	//}
+	//
+	//fmt.Printf("fetchStudents count: %v \n", len(students))
+
+	// Start the server
+	server.Start()
+
+	// Start gate server
+	//go startGateServer(":8081")
+	//
+	//// Start login server
+	//go startLoginServer(":8082")
+	//// Block forever
+}
+
+func runGinServer(config config.Config, store *sqlx.DB) {
+	server, err := api.NewServer(config, store)
+	if err != nil {
+		log.Fatal("cannot create server")
+	}
+
+	err = server.Start("localhost:8080")
+	if err != nil {
+		log.Fatal("cannot start server")
+	}
+}
+
+func studentByID(store *sqlx.DB, id uint32) (Student, error) {
+	st := Student{}
+
+	//if err := db.QueryRowx("SELECT * FROM students WHERE id = ?", id).StructScan(&st); err != nil {
+	//	if err == sql.ErrNoRows {
+	//		return st, fmt.Errorf("studentById %d: no such student", id)
+	//	}
+	//	return st, fmt.Errorf("studentById %d: %v", id, err)
+	//}
+	if err := store.Get(&st, "SELECT * FROM t_battle WHERE idx = ?", id); err != nil {
+		if err == sql.ErrNoRows {
+			return st, fmt.Errorf("studentById %d: no such student", id)
+		}
+		return st, fmt.Errorf("studentById %d: %v", id, err)
+	}
+	return st, nil
+}
+
+func fetchStudents(store *sqlx.DB) ([]Student, error) {
+	// A slice of Students to hold data from returned rows.
+	students := make([]Student, 0, 10)
+
+	err := store.Select(&students, "SELECT * FROM t_battle LIMIT 10")
+	if err != nil {
+		return nil, fmt.Errorf("fetchStudents %v", err)
+	}
+
+	return students, nil
+}
+
+type Student struct {
+	Idx             int    `db:"idx"`
+	AccountId       string `db:"account_id"`
+	BattleData      []byte `db:"battle_data"`
+	KillsModifytime int    `db:"kills_modifytime"`
+	Createtime      int    `db:"createtime"`
+	Modifytime      int    `db:"modifytime"`
+}

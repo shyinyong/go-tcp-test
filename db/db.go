@@ -1,51 +1,27 @@
 package db
 
 import (
-	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/shyinyong/go-tcp-test/db/enitty"
+	"github.com/golang/glog"
+	"github.com/jmoiron/sqlx"
 )
 
-// DB represents the database operations
-type DB struct {
-	conn *sql.DB
+var db *sqlx.DB
+var err error
+
+func InitDB() {
+	// argv config *config.Config
+	// Db, err := sqlx.Open(config.DBDriver, config.DBSource)
+	db, err = sqlx.Connect("mysql", "root:123456@tcp(127.0.0.1:3306)/go_tcp_test?charset=utf8mb4&parseTime=True&loc=Local")
+	if err != nil {
+		glog.Fatal(err)
+	}
 }
 
-// NewDB creates a new DB instance
-func NewDB(dataSourceName string) (*DB, error) {
-	db, err := sql.Open("mysql", dataSourceName)
-	if err != nil {
-		return nil, err
-	}
-	return &DB{conn: db}, nil
+func GetDB() *sqlx.DB {
+	return db
 }
 
-// Close closes the database connection
-func (db *DB) Close() error {
-	return db.conn.Close()
-}
-
-// GetBooks fetches all books from the database
-func (db *DB) GetBooks() ([]enitty.Book, error) {
-	rows, err := db.conn.Query("SELECT isbn, title, author, price FROM books")
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var books []enitty.Book
-	for rows.Next() {
-		book := enitty.Book{}
-		err := rows.Scan(&book.Isbn, &book.Title, &book.Author, &book.Price)
-		if err != nil {
-			panic(err)
-		}
-		books = append(books, book)
-	}
-	err = rows.Err()
-	if err != nil {
-		panic(err)
-	}
-
-	return books, nil
+func Close() error {
+	return db.Close()
 }

@@ -35,7 +35,7 @@ type SQLErrorInstance struct {
 /*
    //Example
    func batchInsert(tagID string, openIDs []string) error {
-       const insertSQL = "INSERT OR REPLACE INTO tagdata_%d (tagid,openid) VALUES (?,?);"
+       consts insertSQL = "INSERT OR REPLACE INTO tagdata_%d (tagid,openid) VALUES (?,?);"
 
        sqlRunner := NewBatchRunner(t.Owner.db, 10000, t.Owner.mutex)
        if err := sqlRunner.prepare("cleanup", fmt.Sprintf(cleanupSQL, tagID)); err != nil {

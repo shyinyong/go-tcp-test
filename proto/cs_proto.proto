@@ -1,0 +1,22 @@
+syntax = "proto3";
+package cs;
+option go_package = "/cs";
+
+// protoc --go_out=../pb ./cs_*.proto
+
+message CMPing {
+    string msg = 1;
+}
+
+message SMPing {
+    string msg = 1;
+}
+
+message CMLogin {
+    string account_id = 1;
+    string password = 2;
+}
+
+message SMLogin {
+    string account_id = 1;
+}
