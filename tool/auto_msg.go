@@ -14,33 +14,32 @@ import (
 	"github.com/shyinyong/go-tcp-test/msg_packet"
 )
 
-type CsNetMsgHandler msg_packet.NetMsgHandler[MsgHandler];
+type CsNetMsgHandler msg_packet.NetMsgHandler[MsgHandler]
 
-type MsgHandlerImpl struct {
-}
+type MsgHandlerImpl struct{}
 
 var handlers [2000]*CsNetMsgHandler
 
 func GetNetMsgHandler(msgId uint16) *CsNetMsgHandler {
-        handler := handlers[msgId]
-        return handler
+	handler := handlers[msgId]
+	return handler
 }
 
 func DispatchMsg(handler *CsNetMsgHandler, hdr *msg_packet.MsgHdr, msgHandler MsgHandler) {
-        handler.Cb(hdr, msgHandler)
+	handler.Cb(hdr, msgHandler)
 }
 
 func RegHandlerId(msgId int, handlerId int) {
-        handler := handlers[msgId]
-        handler.HandlerId = handlerId
+	handler := handlers[msgId]
+	handler.HandlerId = handlerId
 }
 
 func ParsePb(msgId uint16, data []byte) interface{} {
-        handler := handlers[msgId]
-        if handler == nil {
-                return nil
-        }
-        return handler.ParseCb(data)
+	handler := handlers[msgId]
+	if handler == nil {
+		return nil
+	}
+	return handler.ParseCb(data)
 }
 
 type MsgHandler interface {
@@ -48,7 +47,6 @@ type MsgHandler interface {
 }
 
 %s
-
 %s
 
 `

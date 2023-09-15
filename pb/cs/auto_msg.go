@@ -7,8 +7,7 @@ import (
 
 type CsNetMsgHandler msg_packet.NetMsgHandler[MsgHandler]
 
-type MsgHandlerImpl struct {
-}
+type MsgHandlerImpl struct{}
 
 var handlers [2000]*CsNetMsgHandler
 
