@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"github.com/shyinyong/go-tcp-test/consts"
+	"io"
 	"net"
 )
 
@@ -85,6 +86,34 @@ type MessageHeader struct {
 type NetworkPacket struct {
 	Header MessageHeader
 	Body   []byte
+}
+
+func ParseHeader(conn net.Conn) (*MessageHeader, error) {
+	headerBytes := make([]byte, consts.HeaderSize)
+	_, err := io.ReadFull(conn, headerBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	header := &MessageHeader{
+		PackageLen: binary.BigEndian.Uint16(headerBytes[:2]),
+		MsgID:      binary.BigEndian.Uint16(headerBytes[2:4]),
+		SeqID:      binary.BigEndian.Uint32(headerBytes[4:8]),
+		MagicCode:  binary.BigEndian.Uint16(headerBytes[8:10]),
+		Reserved:   binary.BigEndian.Uint16(headerBytes[10:12]),
+	}
+
+	return header, nil
+}
+
+func ParseBody(conn net.Conn, bodySize int) ([]byte, error) {
+	body := make([]byte, bodySize)
+	_, err := io.ReadFull(conn, body)
+	if err != nil {
+		return nil, err
+	}
+
+	return body, nil
 }
 
 // EncodeNetworkPacket 编码网络包

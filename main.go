@@ -1,14 +1,12 @@
 package main
 
 import (
-	"encoding/binary"
 	"fmt"
 	"github.com/shyinyong/go-tcp-test/consts"
 	"github.com/shyinyong/go-tcp-test/db"
 	"github.com/shyinyong/go-tcp-test/msg_packet"
 	"github.com/shyinyong/go-tcp-test/pb/cs"
 
-	"io"
 	"net"
 	"sync"
 	"time"
@@ -50,7 +48,6 @@ func NewGameServer() (*GameServer, error) {
 	}, nil
 }
 
-// 运行游戏服务器
 func (gs *GameServer) Run() {
 	for {
 		conn, err := gs.listener.Accept()
@@ -85,8 +82,6 @@ func (gs *GameServer) HandleClient(client *Client) {
 	go gs.ReadMessages(client)
 	go gs.WriteMessages(client)
 
-	// 使用一个定时器来检测客户端活动
-	// 设定一个合适的时间间隔
 	clientActivityTimer := time.NewTimer(time.Minute)
 	defer clientActivityTimer.Stop()
 	for {
@@ -103,26 +98,6 @@ func (gs *GameServer) HandleClient(client *Client) {
 				clientActivityTimer.Reset(time.Minute)
 			}
 		}
-	}
-}
-
-func (gs *GameServer) ReadMessages(client *Client) {
-	for {
-		header, err := gs.ParseHeader(client.conn)
-		if err != nil {
-			fmt.Printf("Error reading header: %v\n", err)
-			client.disconnect <- struct{}{}
-			return
-		}
-
-		body, err := gs.ParseBody(client.conn, int(header.PackageLen-uint16(consts.HeaderSize)))
-		if err != nil {
-			fmt.Printf("Error reading body: %v\n", err)
-			client.disconnect <- struct{}{}
-			return
-		}
-
-		go gs.HandleMessage(client, header.MsgID, body)
 	}
 }
 
@@ -144,45 +119,34 @@ func (gs *GameServer) WriteMessages(client *Client) {
 	}
 }
 
-func (gs *GameServer) ParseHeader(conn net.Conn) (*msg_packet.MessageHeader, error) {
-	headerBytes := make([]byte, consts.HeaderSize)
-	_, err := io.ReadFull(conn, headerBytes)
-	if err != nil {
-		return nil, err
+func (gs *GameServer) ReadMessages(client *Client) {
+	for {
+		header, err := msg_packet.ParseHeader(client.conn)
+		if err != nil {
+			fmt.Printf("Error reading header: %v\n", err)
+			client.disconnect <- struct{}{}
+			return
+		}
+
+		body, err := msg_packet.ParseBody(client.conn, int(header.PackageLen-uint16(consts.HeaderSize)))
+		if err != nil {
+			fmt.Printf("Error reading body: %v\n", err)
+			client.disconnect <- struct{}{}
+			return
+		}
+
+		go gs.HandleMessage(client, header.MsgID, body)
 	}
-
-	header := &msg_packet.MessageHeader{
-		PackageLen: binary.BigEndian.Uint16(headerBytes[:2]),
-		MsgID:      binary.BigEndian.Uint16(headerBytes[2:4]),
-		SeqID:      binary.BigEndian.Uint32(headerBytes[4:8]),
-		MagicCode:  binary.BigEndian.Uint16(headerBytes[8:10]),
-		Reserved:   binary.BigEndian.Uint16(headerBytes[10:12]),
-	}
-
-	return header, nil
-}
-
-func (gs *GameServer) ParseBody(conn net.Conn, bodySize int) ([]byte, error) {
-	body := make([]byte, bodySize)
-	_, err := io.ReadFull(conn, body)
-	if err != nil {
-		return nil, err
-	}
-
-	return body, nil
 }
 
 func (gs *GameServer) HandleMessage(client *Client, msgID uint16, body []byte) {
 	handler := cs.GetNetMsgHandler(msgID)
 	if handler != nil {
 		switch handler.HandlerId {
-		case consts.PLAYER_MGR_HANDLER_ID:
-			//cs.DispatchMsg(handler, hdr, playerMgr)
-		case consts.PLAYER_HANDLER_ID:
-			//player := playerMgr.getPlayerBySocket(hdr.GetSocket())
-			//if player != nil {
-			//	cs.DispatchMsg(handler, hdr, player)
-			//}
+			response := handler(body)
+			if response != nil {
+				client.outgoing <- response
+			}
 		}
 
 		//
