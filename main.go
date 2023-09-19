@@ -152,14 +152,8 @@ func (gs *GameServer) HandleMessage(client *Client, msgID uint16, body []byte) {
 	}
 
 	// 解析消息并调用处理函数
-	msgHandler := handler.ParseCb(body)
-	msgHandlerTyped, ok := msgHandler.(cs.MsgHandler)
-	if !ok {
-		fmt.Printf("Invalid message handler type for message ID %d\n", msgID)
-		return
-	}
-	// func DispatchMsg(handler *CsNetMsgHandler, hdr *msg_packet.MsgHdr, msgHandler MsgHandler) {
-	cs.DispatchMsg(handler, hdr, msgHandlerTyped)
+	var player = new(Player)
+	cs.DispatchMsg(handler, hdr, player)
 
 	// client.outgoing <- response
 
