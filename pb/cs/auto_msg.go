@@ -3,13 +3,15 @@ package cs
 import (
 	"github.com/shyinyong/go-tcp-test/consts"
 	"github.com/shyinyong/go-tcp-test/msg_packet"
+	"google.golang.org/protobuf/proto"
 )
 
 type CsNetMsgHandler msg_packet.NetMsgHandler[MsgHandler]
 
 type MsgHandlerImpl struct{}
 
-var handlers [2000]*CsNetMsgHandler
+// var handlers [2000]*CsNetMsgHandler
+var handlers = make(map[uint16]*CsNetMsgHandler)
 
 func GetNetMsgHandler(msgId uint16) *CsNetMsgHandler {
 	handler := handlers[msgId]
@@ -20,7 +22,7 @@ func DispatchMsg(handler *CsNetMsgHandler, hdr *msg_packet.MsgHdr, msgHandler Ms
 	handler.Cb(hdr, msgHandler)
 }
 
-func RegHandlerId(msgId int, handlerId int) {
+func RegHandlerId(msgId uint16, handlerId int) {
 	handler := handlers[msgId]
 	handler.HandlerId = handlerId
 }
@@ -52,4 +54,32 @@ func (cm *CMPing) GetNetMsgId() uint16 {
 
 func (cm *CMLogin) GetNetMsgId() uint16 {
 	return uint16(consts.CMMessageID_CMLogin)
+}
+
+func init() {
+
+	handlers[uint16(consts.CMMessageID_CMPing)] = &CsNetMsgHandler{
+		MsgId: int(consts.CMMessageID_CMPing),
+		ParseCb: func(data []byte) interface{} {
+			msg := &CMPing{}
+			proto.Unmarshal(data, msg)
+			return msg
+		},
+		Cb: func(hdr *msg_packet.MsgHdr, handler MsgHandler) {
+			handler.CMPing(hdr, hdr.Msg.(*CMPing))
+		},
+	}
+
+	handlers[uint16(consts.CMMessageID_CMLogin)] = &CsNetMsgHandler{
+		MsgId: int(consts.CMMessageID_CMLogin),
+		ParseCb: func(data []byte) interface{} {
+			msg := &CMLogin{}
+			proto.Unmarshal(data, msg)
+			return msg
+		},
+		Cb: func(hdr *msg_packet.MsgHdr, handler MsgHandler) {
+			handler.CMLogin(hdr, hdr.Msg.(*CMLogin))
+		},
+	}
+
 }

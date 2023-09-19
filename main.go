@@ -29,10 +29,9 @@ func NewClient(conn net.Conn) *Client {
 }
 
 type GameServer struct {
-	listener        net.Listener
-	clients         map[*Client]struct{}
-	clientMutex     sync.Mutex
-	messageHandlers map[uint16]func([]byte) []byte // 存储消息处理函数
+	listener    net.Listener
+	clients     map[*Client]struct{}
+	clientMutex sync.Mutex
 }
 
 func NewGameServer() (*GameServer, error) {
@@ -42,9 +41,8 @@ func NewGameServer() (*GameServer, error) {
 	}
 
 	return &GameServer{
-		listener:        listener,
-		clients:         make(map[*Client]struct{}),
-		messageHandlers: make(map[uint16]func([]byte) []byte),
+		listener: listener,
+		clients:  make(map[*Client]struct{}),
 	}, nil
 }
 
@@ -141,25 +139,41 @@ func (gs *GameServer) ReadMessages(client *Client) {
 
 func (gs *GameServer) HandleMessage(client *Client, msgID uint16, body []byte) {
 	handler := cs.GetNetMsgHandler(msgID)
-	if handler != nil {
-		switch handler.HandlerId {
-			response := handler(body)
-			if response != nil {
-				client.outgoing <- response
-			}
-		}
-
-		//
-		//response := handler(body)
-		//if response != nil {
-		//	client.outgoing <- response
-		//}
-		//
+	if handler == nil {
+		fmt.Printf("No handler found for message ID %d\n", msgID)
+		return
 	}
+
+	// 构建消息头信息
+	hdr := &msg_packet.MsgHdr{
+		MsgId: msgID,
+		Conn:  client.conn,
+		Data:  body,
+	}
+
+	// 解析消息并调用处理函数
+	msgHandler := handler.ParseCb(body)
+	msgHandlerTyped, ok := msgHandler.(cs.MsgHandler)
+	if !ok {
+		fmt.Printf("Invalid message handler type for message ID %d\n", msgID)
+		return
+	}
+	// func DispatchMsg(handler *CsNetMsgHandler, hdr *msg_packet.MsgHdr, msgHandler MsgHandler) {
+	cs.DispatchMsg(handler, hdr, msgHandlerTyped)
+
+	// client.outgoing <- response
+
+	//switch handler.HandlerId {
+	//	msg := cs.ParsePb(msgID, body)
+	//	response := handler(body)
+	//	if response != nil {
+	//		client.outgoing <- response
+	//	}
+	//}
 }
 
-func (gs *GameServer) RegisterHandler(msgID uint16, handler func([]byte) []byte) {
-	gs.messageHandlers[msgID] = handler
+func (gs *GameServer) RegisterHandler(msgID uint16, modelId int) {
+	cs.RegHandlerId(msgID, modelId)
 }
 
 func main() {
@@ -169,7 +183,7 @@ func main() {
 		fmt.Printf("Error creating GameServer: %v\n", err)
 		return
 	}
-	gameServer.RegisterHandler(consts.CMMessageID_CMPing, CMPing)
-	gameServer.RegisterHandler(consts.CMMessageID_CMLogin, CMLogin)
+	gameServer.RegisterHandler(consts.CMMessageID_CMPing, 1)
+	gameServer.RegisterHandler(consts.CMMessageID_CMLogin, 1)
 	gameServer.Run()
 }

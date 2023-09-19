@@ -18,7 +18,8 @@ type CsNetMsgHandler msg_packet.NetMsgHandler[MsgHandler]
 
 type MsgHandlerImpl struct{}
 
-var handlers [2000]*CsNetMsgHandler
+// var handlers [2000]*CsNetMsgHandler
+var handlers = make(map[uint16]*CsNetMsgHandler)
 
 func GetNetMsgHandler(msgId uint16) *CsNetMsgHandler {
 	handler := handlers[msgId]
@@ -29,7 +30,7 @@ func DispatchMsg(handler *CsNetMsgHandler, hdr *msg_packet.MsgHdr, msgHandler Ms
 	handler.Cb(hdr, msgHandler)
 }
 
-func RegHandlerId(msgId int, handlerId int) {
+func RegHandlerId(msgId uint16, handlerId int) {
 	handler := handlers[msgId]
 	handler.HandlerId = handlerId
 }
@@ -49,6 +50,10 @@ type MsgHandler interface {
 %s
 %s
 
+func init() {
+	%s
+}
+
 `
 
 func generateAutoMsgFile(messageIDs []string) {
@@ -56,10 +61,12 @@ func generateAutoMsgFile(messageIDs []string) {
 	functionSignatures := []string{}
 	implFunctions := []string{}
 	generateGetNetMsgIds := []string{}
+	generateHandlers := []string{}
 	for _, messageID := range messageIDs {
 		functionSignatures = append(functionSignatures, generateFunctionSignature(messageID))
 		implFunctions = append(implFunctions, generateImplFunction(messageID))
 		generateGetNetMsgIds = append(generateGetNetMsgIds, generateGetNetMsgId(messageID))
+		generateHandlers = append(generateHandlers, generateHandler(messageID))
 	}
 
 	// 构建 auto_msg.go 文件内容
@@ -68,6 +75,7 @@ func generateAutoMsgFile(messageIDs []string) {
 		strings.Join(functionSignatures, "\n"),
 		strings.Join(implFunctions, "\n"),
 		strings.Join(generateGetNetMsgIds, "\n"),
+		strings.Join(generateHandlers, "\n"),
 	)
 
 	// 将内容写入 auto_msg.go 文件
@@ -95,8 +103,23 @@ func generateGetNetMsgId(messageID string) string {
 func (cm *%s) GetNetMsgId() uint16 {
 	return uint16(consts.CMMessageID_%s)
 }
-
 `, messageID, messageID)
+}
+
+func generateHandler(messageID string) string {
+	return fmt.Sprintf(`
+	handlers[uint16(consts.CMMessageID_%s)] = &CsNetMsgHandler{
+		MsgId: int(consts.CMMessageID_%s),
+		ParseCb: func(data []byte) interface{} {
+			msg := &%s{}
+			proto.Unmarshal(data, msg)
+			return msg
+		},
+		Cb: func(hdr *msg_packet.MsgHdr, handler MsgHandler) {
+			handler.%s(hdr, hdr.Msg.(*%s))
+		},
+	}
+`, messageID, messageID, messageID, messageID, messageID)
 }
 
 func main() {

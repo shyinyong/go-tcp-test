@@ -25,8 +25,8 @@ func TestLoginAndPing(t *testing.T) {
 	// 启动服务器
 	gameServer, err := NewGameServer()
 	assert.NoError(t, err)
-	gameServer.RegisterHandler(consts.CMMessageID_CMPing, CMPing)
-	gameServer.RegisterHandler(consts.CMMessageID_CMLogin, CMLogin)
+	gameServer.RegisterHandler(consts.CMMessageID_CMPing, 1)
+	gameServer.RegisterHandler(consts.CMMessageID_CMLogin, 1)
 	go gameServer.Run()
 
 	// 模拟与服务器建立连接
